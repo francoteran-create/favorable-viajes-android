@@ -64,7 +64,7 @@ public class MainActivity extends Activity {
    TextView dh=tx("DETALLE DEL VIAJE",16,GREEN);dh.setTypeface(null,1);detailPanel.addView(dh);
    detailPanel.addView(tx("Seleccioná un viaje del tablero para abrir su ficha operativa.",12,MUTED));
    detailBody=tx("\nEMPRESA\n—\n\nFECHA / HORA\n—\n\nCHOFER / CAMIÓN\n—\n\nSERVICIO / DESTINO\n—\n\nMATERIALES\n—\n\nOBSERVACIONES\n—\n\nFOTOS / EVIDENCIAS\n—",11,WHITE);detailPanel.addView(detailBody,new LinearLayout.LayoutParams(-1,0,1));
-   detailOpen=bt("ABRIR FICHA COMPLETA");detailOpen.setTextColor(Color.BLACK);detailOpen.setBackground(shape(YELLOW,dp(12)));detailOpen.setEnabled(false);detailOpen.setOnClickListener(v->{if(selectedRow>=0&&selectedIdx>=0)detail(selectedRow,selectedDay,selectedIdx);});detailPanel.addView(detailOpen,new LinearLayout.LayoutParams(-1,dp(52)));
+   detailOpen=bt("ABRIR FICHA COMPLETA");detailOpen.setTextColor(Color.BLACK);detailOpen.setBackground(shape(YELLOW,dp(12)));detailOpen.setEnabled(false);detailOpen.setOnClickListener(v->{if(selectedRow>=0&&selectedIdx>=0)detail(selectedRow,selectedDay,selectedIdx,trips(selectedRow,selectedDay)[selectedIdx]);});detailPanel.addView(detailOpen,new LinearLayout.LayoutParams(-1,dp(52)));
    shell.addView(detailPanel,new LinearLayout.LayoutParams(dp(260),-1));
   }
   p.setOnClickListener(v->{week.add(Calendar.WEEK_OF_YEAR,-1);render();});n.setOnClickListener(v->{week.add(Calendar.WEEK_OF_YEAR,1);render();});h.setOnClickListener(v->{week=Calendar.getInstance();render();});
