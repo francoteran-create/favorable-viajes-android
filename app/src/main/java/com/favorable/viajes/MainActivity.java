@@ -8,7 +8,7 @@ public class MainActivity extends Activity {
  final int BG=Color.rgb(8,13,10),PANEL=Color.rgb(20,29,23),PANEL2=Color.rgb(29,40,32),GREEN=Color.rgb(122,205,69),WHITE=Color.WHITE,MUTED=Color.rgb(177,190,181),RED=Color.rgb(218,70,70),YELLOW=Color.rgb(239,190,55);
  LinearLayout root,board; TextView weekTitle,foot; int photoRow=-1,photoDay=-1,photoIdx=-1; Calendar week=Calendar.getInstance(); SharedPreferences db;
  String[] days={"LUN","MAR","MIÉ","JUE","VIE","SÁB","DOM"};
- String[] companies={"ARCOR","BODEGA MONTEVIEJO","HOLCIM","CLIENTES VARIOS"};
+ String[] companies={"ACMET","ARCOR","BODEGA MONTEVIEJO","HOLCIM","CLIENTES VARIOS","COCA COLA","YPF","UNILEVER","NESTLÉ","CARREFOUR","DIA","CARGILL","MOLINOS RÍO DE LA PLATA","CLOROX","MERCEDES BENZ","TOYOTA"};
  boolean favoritesOnly=false;
  String[] trailers={"SIN ACOPLADO","AE 056 WL · ACOPLADO","CMC 802 · ACOPLADO","TCM 673 · ACOPLADO","TDH 077 · ACOPLADO"};
  String[] materials={"CARTON","VIDRIO","STRECH","TERMOCONTRAIBLE","ALUMINIO","CHATARRA","PET CRISTAL","BIDONES","COLOR"};
@@ -17,7 +17,7 @@ public class MainActivity extends Activity {
  String[] drivers={"AGUERO EDGARDO JESUS","CATALDO DANIEL HECTOR","CATALDO FRANCO","CATALDO SERGIO JAVIER","FUNES FABIAN ROQUE","GINIOLI MATIAS VICENTE","MELA GERARDO DARIO","OLMOS JUAN CARLOS","SOTELO FRANCO"};
  String[] trucks={"AC 592 VP · IVECO EUROCARGO","AG 824 DR · IVECO TECTOR","AD 604 WN · IVECO DAILY","AD 670 RD · IVECO TECTOR","AE 056 WX · IVECO TECTOR","AF 252 GE · IVECO TECTOR","DOJ 270 · M. BENZ LK","GIP 868 · M. BENZ L","ILH 135 · IVECO DAILY","OIN 428 · FORD CARGO","PQJ 269 · IVECO EUROCARGO","DPI439 · M. BENZ LK","AI 375 JY · IVECO TECTOR"};
  public void onCreate(Bundle b){super.onCreate(b);db=getSharedPreferences("viajes",0);loadCompanies();build();}
- void loadCompanies(){String x=db.getString("catalog_companies","");if(x.length()>0)companies=x.split("\\|",-1);}
+ void loadCompanies(){String[] defaults=companies;String x=db.getString("catalog_companies","");if(x.length()==0)return;LinkedHashSet<String> all=new LinkedHashSet<>();for(String v:x.split("\\|",-1))if(v.trim().length()>0)all.add(v.trim());for(String v:defaults)all.add(v);companies=all.toArray(new String[0]);saveCompanies();}
  void saveCompanies(){StringBuilder z=new StringBuilder();for(int i=0;i<companies.length;i++){if(i>0)z.append("|");z.append(companies[i]);}db.edit().putString("catalog_companies",z.toString()).apply();}
  int ensureCompany(String name){name=name.trim().toUpperCase(new Locale("es","AR"));for(int i=0;i<companies.length;i++)if(companies[i].equalsIgnoreCase(name))return i;if(name.length()==0)return 0;String[] n=Arrays.copyOf(companies,companies.length+1);n[n.length-1]=name;companies=n;saveCompanies();return n.length-1;}
  protected void onActivityResult(int req,int res,Intent data){super.onActivityResult(req,res,data);if(req==700&&res==RESULT_OK&&data!=null&&data.getData()!=null){try{getContentResolver().takePersistableUriPermission(data.getData(),Intent.FLAG_GRANT_READ_URI_PERMISSION);}catch(Exception e){}String k=evidenceKey(photoRow,photoDay,photoIdx);String old=db.getString(k,"");db.edit().putString(k,old.length()==0?data.getData().toString():old+"||"+data.getData()).apply();saveHistory("FOTO",companies[photoRow]+" · "+days[photoDay]);Toast.makeText(this,"Evidencia agregada",Toast.LENGTH_SHORT).show();}}
@@ -49,7 +49,7 @@ public class MainActivity extends Activity {
   Calendar c=monday(),e=(Calendar)c.clone();e.add(Calendar.DATE,6);SimpleDateFormat f=new SimpleDateFormat("dd/MM",new Locale("es","AR"));weekTitle.setText("SEMANA "+f.format(c.getTime())+" — "+f.format(e.getTime()));
   board.removeAllViews(); TextView legend=tx("ESTADO  ·  Pendiente  |  Programado  |  En curso  |  Realizado  |  Reprogramado  |  Cancelado",12,MUTED);legend.setPadding(14,6,14,12);board.addView(legend);int total=0,done=0,pending=0,course=0,repro=0,cancel=0;
   int screen=getResources().getDisplayMetrics().widthPixels;
-  if(screen<850){
+  if(screen<0){
    for(int r=0;r<companies.length;r++){if(favoritesOnly&&!db.getBoolean("fav_"+r,false))continue;final int rr=r;
     LinearLayout card=new LinearLayout(this);card.setOrientation(LinearLayout.VERTICAL);card.setPadding(16,12,16,14);card.setBackground(shape(PANEL,22));
     TextView cn=tx((db.getBoolean("fav_"+r,false)?"★ ":"")+companies[r],18,WHITE);cn.setTypeface(null,1);cn.setOnLongClickListener(v->{boolean nv=!db.getBoolean("fav_"+rr,false);db.edit().putBoolean("fav_"+rr,nv).apply();render();return true;});card.addView(cn);
@@ -58,8 +58,8 @@ public class MainActivity extends Activity {
     card.addView(strip);Space sp=new Space(this);board.addView(card,new LinearLayout.LayoutParams(-1,-2));board.addView(sp,new LinearLayout.LayoutParams(1,10));
    }
   }else{
-   LinearLayout hd=new LinearLayout(this);hd.addView(tx("EMPRESA",12,GREEN),new LinearLayout.LayoutParams(250,62));for(String d:days){TextView q=tx(d,12,GREEN);q.setGravity(Gravity.CENTER);hd.addView(q,new LinearLayout.LayoutParams(170,62));}board.addView(hd);
-   for(int r=0;r<companies.length;r++){if(favoritesOnly&&!db.getBoolean("fav_"+r,false))continue;LinearLayout row=new LinearLayout(this);final int rr=r;TextView cn=tx((db.getBoolean("fav_"+r,false)?"★ ":"")+companies[r],12,WHITE);cn.setBackground(shape(PANEL,12));cn.setOnLongClickListener(v->{boolean nv=!db.getBoolean("fav_"+rr,false);db.edit().putBoolean("fav_"+rr,nv).apply();render();return true;});row.addView(cn,new LinearLayout.LayoutParams(250,90));for(int d=0;d<7;d++){String val=db.getString(key(r,d),"");Button cell=bt(summary(r,d));if(val.length()>0)cell.setTextColor(stateColor(val));final int dd=d;cell.setOnClickListener(v->{if(db.getString(key(rr,dd),"").isEmpty())form(companies[rr],dd);else tripMenu(rr,dd);});row.addView(cell,new LinearLayout.LayoutParams(170,90));for(String tv:trips(r,d)){total++;if(tv.contains("REALIZADO"))done++;else if(tv.contains("EN CURSO"))course++;else if(tv.contains("REPROGRAMADO"))repro++;else if(tv.contains("CANCELADO"))cancel++;else pending++;}}board.addView(row);}
+   LinearLayout hd=new LinearLayout(this);hd.addView(tx("EMPRESA",12,GREEN),new LinearLayout.LayoutParams(220,62));for(String d:days){TextView q=tx(d,12,GREEN);q.setGravity(Gravity.CENTER);hd.addView(q,new LinearLayout.LayoutParams(145,62));}board.addView(hd);
+   for(int r=0;r<companies.length;r++){if(favoritesOnly&&!db.getBoolean("fav_"+r,false))continue;LinearLayout row=new LinearLayout(this);final int rr=r;TextView cn=tx((db.getBoolean("fav_"+r,false)?"★ ":"")+companies[r],12,WHITE);cn.setBackground(shape(PANEL,12));cn.setOnLongClickListener(v->{boolean nv=!db.getBoolean("fav_"+rr,false);db.edit().putBoolean("fav_"+rr,nv).apply();render();return true;});row.addView(cn,new LinearLayout.LayoutParams(220,82));for(int d=0;d<7;d++){String val=db.getString(key(r,d),"");Button cell=bt(summary(r,d));if(val.length()>0)cell.setTextColor(stateColor(val));final int dd=d;cell.setOnClickListener(v->{if(db.getString(key(rr,dd),"").isEmpty())form(companies[rr],dd);else tripMenu(rr,dd);});row.addView(cell,new LinearLayout.LayoutParams(145,82));for(String tv:trips(r,d)){total++;if(tv.contains("REALIZADO"))done++;else if(tv.contains("EN CURSO"))course++;else if(tv.contains("REPROGRAMADO"))repro++;else if(tv.contains("CANCELADO"))cancel++;else pending++;}}board.addView(row);}
   }
   foot.setText("Viajes "+total+"   •   Realizados "+done+"   •   En curso "+course+"   •   Pendientes "+pending+"   •   Reprogramados "+repro+"   •   Cancelados "+cancel);
  }
