@@ -115,7 +115,8 @@ public class MainActivity extends Activity {
   EditText co=new EditText(this);co.setHint("Empresa / cliente");co.setText(company);f.addView(co);
   EditText tm=new EditText(this);tm.setHint("Hora · tocar para elegir");tm.setFocusable(false);tm.setOnClickListener(v->{Calendar now=Calendar.getInstance();new TimePickerDialog(this,(vv,h,m)->tm.setText(String.format(Locale.US,"%02d:%02d",h,m)),now.get(Calendar.HOUR_OF_DAY),now.get(Calendar.MINUTE),true).show();});f.addView(tm);
   Spinner ser=spin(new String[]{"ELEGIR TIPO DE SERVICIO","RETIRO DE MATERIALES","SERVICIO DE RETIRO"});f.addView(label("Tipo de operación"));f.addView(ser);
-  Spinner subtype=spin(new String[]{"ELEGIR TIPO / DETALLE","LINNER","FLEJES","RSU","CARTÓN","VIDRIO","STRECH","TERMOCONTRAIBLE","ALUMINIO","CHATARRA","PET CRISTAL","BIDONES","COLOR","OTRO"});f.addView(label("Tipo / detalle del retiro"));f.addView(subtype);
+  Spinner subtype=spin(new String[]{"ELEGIR TIPO / DETALLE"});f.addView(label("Tipo / detalle del retiro"));f.addView(subtype);
+  ser.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener(){public void onNothingSelected(android.widget.AdapterView<?> p){}public void onItemSelected(android.widget.AdapterView<?> p,View v,int pos,long id){String[] opts=pos==1?withFirst("ELEGIR MATERIAL",materials):pos==2?new String[]{"ELEGIR TIPO / DETALLE","LINNER","FLEJES","RSU","OTRO"}:new String[]{"ELEGIR TIPO / DETALLE"};subtype.setAdapter(new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_spinner_dropdown_item,opts));}});
   Spinner drv=spin(drivers);f.addView(label("Chofer"));f.addView(drv);Spinner tr=spin(trucks);f.addView(label("Camión"));f.addView(tr);
   Spinner trail=spin(trailers);f.addView(label("Acoplado"));f.addView(trail);
   Spinner cont=spin(new String[]{"ELEGIR CONTENEDOR","GDE 30 ROLL","MED 20 ROLL","CHICO 15 ROLL","GDE 18 PORTA","CHICO 8 PORTA"});f.addView(label("Contenedor"));f.addView(cont);
