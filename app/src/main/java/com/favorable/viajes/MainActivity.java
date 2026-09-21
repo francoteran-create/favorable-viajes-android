@@ -30,16 +30,37 @@ public class MainActivity extends Activity {
  LinearLayout kpiBar=new LinearLayout(this);
  void updateKpis(){if(kpiBar==null)return;kpiBar.removeAllViews();int total=0,done=0,pending=0,course=0,repro=0,cancel=0;for(int r=0;r<companies.length;r++)for(int d=0;d<7;d++)for(String tv:trips(r,d)){total++;if(tv.contains("REALIZADO"))done++;else if(tv.contains("EN CURSO"))course++;else if(tv.contains("REPROGRAMADO"))repro++;else if(tv.contains("CANCELADO"))cancel++;else pending++;}String[] t={"TOTAL","REALIZADOS","EN CURSO","PENDIENTES","REPROGRAMADOS","CANCELADOS"};int[] n={total,done,course,pending,repro,cancel};int[] c={WHITE,GREEN,YELLOW,Color.rgb(120,170,220),Color.rgb(255,145,60),RED};for(int i=0;i<t.length;i++){TextView v=kpi(t[i],String.valueOf(n[i]),c[i]);LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(dp(118),dp(68));lp.setMargins(dp(4),dp(4),dp(4),dp(8));kpiBar.addView(v,lp);}}
  void build(){
-  root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setPadding(dp(10),dp(8),dp(10),dp(6));root.setBackgroundColor(BG);
-  LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);TextView brand=tx("FAVORABLE  VIAJES\nLOGÍSTICA · OPERACIONES",22,GREEN);brand.setTypeface(null,1);top.addView(brand,new LinearLayout.LayoutParams(0,-2,1));
-  Button p=bt("‹"),h=bt("HOY"),n=bt("›");top.addView(p);top.addView(h);top.addView(n);root.addView(top);
-  weekTitle=tx("",16,WHITE);weekTitle.setGravity(Gravity.CENTER);weekTitle.setTypeface(null,1);root.addView(weekTitle);
-  LinearLayout nav=new LinearLayout(this);nav.setOrientation(LinearLayout.HORIZONTAL);String[] ns={"+ VIAJE","BUSCAR","★","ESTAD.","HIST.","CATÁLOGOS","BACKUP"};
-  for(String s:ns){Button x=bt(s);nav.addView(x,new LinearLayout.LayoutParams(dp(108),dp(54)));if(s.startsWith("+"))x.setOnClickListener(v->chooseDay());if(s.equals("BUSCAR"))x.setOnClickListener(v->searchTrips());if(s.startsWith("EST"))x.setOnClickListener(v->stats());if(s.equals("★"))x.setOnClickListener(v->{favoritesOnly=!favoritesOnly;render();});if(s.startsWith("HIST"))x.setOnClickListener(v->history());if(s.equals("BACKUP")){x.setOnClickListener(v->backup());x.setOnLongClickListener(v->{restoreLatest();return true;});}}
-  HorizontalScrollView navScroll=new HorizontalScrollView(this);navScroll.setHorizontalScrollBarEnabled(false);navScroll.addView(nav);root.addView(navScroll);kpiBar.setOrientation(LinearLayout.HORIZONTAL);HorizontalScrollView kpiScroll=new HorizontalScrollView(this);kpiScroll.setHorizontalScrollBarEnabled(false);kpiScroll.addView(kpiBar);root.addView(kpiScroll);
-  ScrollView sv=new ScrollView(this);HorizontalScrollView hs=new HorizontalScrollView(this);hs.setFillViewport(false);board=new LinearLayout(this);board.setOrientation(LinearLayout.VERTICAL);hs.addView(board);sv.addView(hs);root.addView(sv,new LinearLayout.LayoutParams(-1,0,1));
-  foot=tx("",12,MUTED);root.addView(foot);
-  p.setOnClickListener(v->{week.add(Calendar.WEEK_OF_YEAR,-1);render();});n.setOnClickListener(v->{week.add(Calendar.WEEK_OF_YEAR,1);render();});h.setOnClickListener(v->{week=Calendar.getInstance();render();});setContentView(root);render();
+  root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setBackgroundColor(BG);
+  LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);top.setPadding(dp(16),dp(10),dp(12),dp(8));top.setBackground(shape(Color.rgb(10,22,14),0));
+  TextView brand=tx("♻  FAVORABLE\n     VIAJES",22,GREEN);brand.setTypeface(null,1);top.addView(brand,new LinearLayout.LayoutParams(0,-2,1));
+  TextView claim=tx("LOGÍSTICA QUE TRANSFORMA",11,YELLOW);claim.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);top.addView(claim);root.addView(top);
+
+  LinearLayout shell=new LinearLayout(this);shell.setOrientation(LinearLayout.HORIZONTAL);root.addView(shell,new LinearLayout.LayoutParams(-1,0,1));
+  int widthDp=(int)(getResources().getDisplayMetrics().widthPixels/getResources().getDisplayMetrics().density);
+  if(widthDp>=900){
+   LinearLayout side=new LinearLayout(this);side.setOrientation(LinearLayout.VERTICAL);side.setPadding(dp(8),dp(10),dp(8),dp(8));side.setBackgroundColor(Color.rgb(12,20,15));
+   TextView sh=tx("GESTIÓN DE RETIROS",10,MUTED);side.addView(sh);
+   String[] sm={"▣  SEMANA","□  DÍA","!  PEDIDOS PENDIENTES","◷  HISTORIAL","▦  EMPRESAS","♟  CHOFERES","▰  CAMIONES","▱  ACOPLADOS","▤  CONTENEDORES","⚙  SERVICIOS","◆  MATERIALES","⌖  DESTINOS","▥  ESTADÍSTICAS","◉  RECURSOS","▦  CATÁLOGOS","⚙  CONFIGURACIÓN"};
+   for(String q:sm){Button x=bt(q);x.setGravity(Gravity.LEFT|Gravity.CENTER_VERTICAL);x.setTextSize(10);if(q.contains("SEMANA")){x.setTextColor(YELLOW);GradientDrawable sg=shape(PANEL2,dp(10));sg.setStroke(dp(1),YELLOW);x.setBackground(sg);}side.addView(x,new LinearLayout.LayoutParams(-1,dp(43)));if(q.contains("HISTORIAL"))x.setOnClickListener(v->history());if(q.contains("ESTADÍSTICAS"))x.setOnClickListener(v->stats());if(q.contains("CATÁLOGOS")||q.contains("EMPRESAS")||q.contains("CHOFERES")||q.contains("CAMIONES")||q.contains("ACOPLADOS")||q.contains("CONTENEDORES")||q.contains("MATERIALES")||q.contains("DESTINOS"))x.setOnClickListener(v->catalogs());}
+   TextView eco=tx("♻\nMÁS LOGÍSTICA\nMÁS RECICLAJE\nUN MUNDO MÁS LIMPIO",10,GREEN);side.addView(eco,new LinearLayout.LayoutParams(-1,0,1));
+   shell.addView(side,new LinearLayout.LayoutParams(dp(180),-1));
+  }
+
+  LinearLayout main=new LinearLayout(this);main.setOrientation(LinearLayout.VERTICAL);main.setPadding(dp(8),dp(4),dp(8),dp(4));shell.addView(main,new LinearLayout.LayoutParams(0,-1,1));
+  LinearLayout actions=new LinearLayout(this);actions.setOrientation(LinearLayout.HORIZONTAL);
+  String[] ns={"+ NUEVO VIAJE","VER SEMANA","VER DÍA","★ FAVORITOS","BUSCAR","ESTADÍSTICAS","CATÁLOGOS","BACKUP"};
+  for(String q:ns){Button x=bt(q);if(q.startsWith("+")){x.setTextColor(Color.BLACK);x.setBackground(shape(YELLOW,dp(12)));}actions.addView(x,new LinearLayout.LayoutParams(dp(q.startsWith("+")?132:112),dp(50)));if(q.startsWith("+"))x.setOnClickListener(v->chooseDay());else if(q.equals("VER SEMANA"))x.setOnClickListener(v->{favoritesOnly=false;render();});else if(q.startsWith("★"))x.setOnClickListener(v->{favoritesOnly=!favoritesOnly;render();});else if(q.equals("BUSCAR"))x.setOnClickListener(v->searchTrips());else if(q.startsWith("EST"))x.setOnClickListener(v->stats());else if(q.equals("CATÁLOGOS"))x.setOnClickListener(v->catalogs());else if(q.equals("BACKUP")){x.setOnClickListener(v->backup());x.setOnLongClickListener(v->{restoreLatest();return true;});}}
+  HorizontalScrollView as=new HorizontalScrollView(this);as.setHorizontalScrollBarEnabled(false);as.addView(actions);main.addView(as);
+
+  LinearLayout weekbar=new LinearLayout(this);weekbar.setGravity(Gravity.CENTER_VERTICAL);Button p=bt("‹"),h=bt("HOY"),n=bt("›");weekTitle=tx("",16,WHITE);weekTitle.setGravity(Gravity.CENTER);weekTitle.setTypeface(null,1);weekbar.addView(p,new LinearLayout.LayoutParams(dp(54),dp(48)));weekbar.addView(weekTitle,new LinearLayout.LayoutParams(0,dp(54),1));weekbar.addView(h,new LinearLayout.LayoutParams(dp(72),dp(48)));weekbar.addView(n,new LinearLayout.LayoutParams(dp(54),dp(48)));main.addView(weekbar);
+
+  kpiBar=new LinearLayout(this);kpiBar.setOrientation(LinearLayout.HORIZONTAL);HorizontalScrollView kpiScroll=new HorizontalScrollView(this);kpiScroll.setHorizontalScrollBarEnabled(false);kpiScroll.addView(kpiBar);main.addView(kpiScroll);
+  TextView section=tx("PLANIFICADOR SEMANAL   ·   FAVORITAS Y EMPRESAS CON VIAJES PRIMERO",11,GREEN);section.setTypeface(null,1);section.setBackground(shape(PANEL,dp(10)));main.addView(section);
+
+  ScrollView sv=new ScrollView(this);HorizontalScrollView hs=new HorizontalScrollView(this);hs.setFillViewport(false);board=new LinearLayout(this);board.setOrientation(LinearLayout.VERTICAL);hs.addView(board);sv.addView(hs);main.addView(sv,new LinearLayout.LayoutParams(-1,0,1));
+  foot=tx("",12,MUTED);foot.setBackground(shape(PANEL,dp(10)));main.addView(foot);
+  p.setOnClickListener(v->{week.add(Calendar.WEEK_OF_YEAR,-1);render();});n.setOnClickListener(v->{week.add(Calendar.WEEK_OF_YEAR,1);render();});h.setOnClickListener(v->{week=Calendar.getInstance();render();});
+  setContentView(root);render();
  }
  Calendar monday(){Calendar c=(Calendar)week.clone();int d=c.get(Calendar.DAY_OF_WEEK);c.add(Calendar.DATE,d==Calendar.SUNDAY?-6:Calendar.MONDAY-d);return c;}
  String wk(){return new SimpleDateFormat("yyyyMMdd",Locale.US).format(monday().getTime());}
