@@ -34,8 +34,8 @@ public class MainActivity extends Activity {
  void build(){
   root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setBackgroundColor(BG);
   LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);top.setPadding(dp(16),dp(10),dp(12),dp(8));top.setBackground(shape(Color.rgb(10,22,14),0));
-  TextView brand=tx("♻  FAVORABLE\n     VIAJES",22,GREEN);brand.setTypeface(null,1);top.addView(brand,new LinearLayout.LayoutParams(0,-2,1));
-  Button summaryTop=bt("RESUMEN SEMANA");summaryTop.setTextSize(9);summaryTop.setTextColor(Color.BLACK);summaryTop.setBackground(shape(YELLOW,dp(10)));summaryTop.setOnClickListener(v->weekMovementSummary());top.addView(summaryTop,new LinearLayout.LayoutParams(dp(widthDpSafe()<500?100:118),dp(42))); TextView claim=tx("LOGÍSTICA QUE TRANSFORMA",11,YELLOW);claim.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);top.addView(claim);root.addView(top);
+  TextView brand=tx("♻  FAVORABLE\n     LOGÍSTICA",widthDpSafe()<500?18:22,GREEN);brand.setTypeface(null,1);brand.setSingleLine(false);top.addView(brand,new LinearLayout.LayoutParams(0,dp(64),1));
+  Button summaryTop=bt("RESUMEN");summaryTop.setTextSize(8);summaryTop.setTextColor(Color.BLACK);summaryTop.setBackground(shape(YELLOW,dp(10)));summaryTop.setOnClickListener(v->weekMovementSummary());top.addView(summaryTop,new LinearLayout.LayoutParams(dp(widthDpSafe()<500?72:82),dp(34))); TextView claim=tx("LOGÍSTICA QUE TRANSFORMA",widthDpSafe()<500?8:11,YELLOW);claim.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);top.addView(claim);root.addView(top);
 
   LinearLayout shell=new LinearLayout(this);shell.setOrientation(LinearLayout.HORIZONTAL);root.addView(shell,new LinearLayout.LayoutParams(-1,0,1));
   int widthDp=(int)(getResources().getDisplayMetrics().widthPixels/getResources().getDisplayMetrics().density);
@@ -59,7 +59,7 @@ public class MainActivity extends Activity {
   kpiBar=new LinearLayout(this);kpiBar.setOrientation(LinearLayout.HORIZONTAL); // KPIs quedan disponibles para estadísticas, no ocupan espacio permanente en semana
   daysHeader=new LinearLayout(this);daysHeader.setOrientation(LinearLayout.HORIZONTAL);main.addView(daysHeader,new LinearLayout.LayoutParams(-1,dp(42)));
   ScrollView sv=new ScrollView(this);HorizontalScrollView hs=new HorizontalScrollView(this);hs.setFillViewport(true);board=new LinearLayout(this);board.setOrientation(LinearLayout.VERTICAL);hs.addView(board);sv.addView(hs);main.addView(sv,new LinearLayout.LayoutParams(-1,0,1));
-  foot=tx("",12,MUTED);foot.setBackground(shape(PANEL,dp(10)));main.addView(foot);TextView maker=tx("Proyecto-Cero-∞  ·  software & proyectos",8,Color.rgb(105,120,110));maker.setGravity(Gravity.CENTER);main.addView(maker,new LinearLayout.LayoutParams(-1,dp(20)));
+  foot=tx("",12,MUTED);foot.setBackground(shape(PANEL,dp(10)));main.addView(foot);TextView maker=tx("∞  PROYECTO CERO  ∞\nsoftware & proyectos",7,Color.rgb(170,145,75));maker.setGravity(Gravity.CENTER);maker.setTypeface(null,1);main.addView(maker,new LinearLayout.LayoutParams(-1,dp(30)));
   if(widthDp>=1100){
    detailPanel=new LinearLayout(this);detailPanel.setOrientation(LinearLayout.VERTICAL);detailPanel.setPadding(dp(14),dp(14),dp(14),dp(14));GradientDrawable dg=shape(Color.rgb(13,24,17),dp(16));dg.setStroke(dp(1),GREEN);detailPanel.setBackground(dg);
    TextView dh=tx("DETALLE DEL VIAJE",16,GREEN);dh.setTypeface(null,1);detailPanel.addView(dh);
