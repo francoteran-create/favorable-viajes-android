@@ -8,7 +8,7 @@ public class MainActivity extends Activity {
  final int BG=Color.rgb(8,13,10),PANEL=Color.rgb(20,29,23),PANEL2=Color.rgb(29,40,32),GREEN=Color.rgb(122,205,69),WHITE=Color.WHITE,MUTED=Color.rgb(177,190,181),RED=Color.rgb(218,70,70),YELLOW=Color.rgb(239,190,55);
  LinearLayout root,board; TextView weekTitle,foot; int photoRow=-1,photoDay=-1,photoIdx=-1; Calendar week=Calendar.getInstance(); SharedPreferences db;
  String[] days={"LUN","MAR","MIÉ","JUE","VIE","SÁB","DOM"};
- String[] companies={"ARCOR","BODEGA MONTEVIEJO","HOLCIM","CLIENTES VARIOS","EMPRESA / CLIENTE"};
+ String[] companies={"ARCOR","BODEGA MONTEVIEJO","HOLCIM","CLIENTES VARIOS"};
  boolean favoritesOnly=false;
  String[] trailers={"SIN ACOPLADO","AE 056 WL · ACOPLADO","CMC 802 · ACOPLADO","TCM 673 · ACOPLADO","TDH 077 · ACOPLADO"};
  String[] materials={"CARTON","VIDRIO","STRECH","TERMOCONTRAIBLE","ALUMINIO","CHATARRA","PET CRISTAL","BIDONES","COLOR"};
@@ -16,7 +16,10 @@ public class MainActivity extends Activity {
  String[] states={"PEDIDO PENDIENTE","PROGRAMADO","EN CURSO","REALIZADO","REPROGRAMADO","CANCELADO"};
  String[] drivers={"AGUERO EDGARDO JESUS","CATALDO DANIEL HECTOR","CATALDO FRANCO","CATALDO SERGIO JAVIER","FUNES FABIAN ROQUE","GINIOLI MATIAS VICENTE","MELA GERARDO DARIO","OLMOS JUAN CARLOS","SOTELO FRANCO"};
  String[] trucks={"AC 592 VP · IVECO EUROCARGO","AG 824 DR · IVECO TECTOR","AD 604 WN · IVECO DAILY","AD 670 RD · IVECO TECTOR","AE 056 WX · IVECO TECTOR","AF 252 GE · IVECO TECTOR","DOJ 270 · M. BENZ LK","GIP 868 · M. BENZ L","ILH 135 · IVECO DAILY","OIN 428 · FORD CARGO","PQJ 269 · IVECO EUROCARGO","DPI439 · M. BENZ LK","AI 375 JY · IVECO TECTOR"};
- public void onCreate(Bundle b){super.onCreate(b);db=getSharedPreferences("viajes",0);build();}
+ public void onCreate(Bundle b){super.onCreate(b);db=getSharedPreferences("viajes",0);loadCompanies();build();}
+ void loadCompanies(){String x=db.getString("catalog_companies","");if(x.length()>0)companies=x.split("\\|",-1);}
+ void saveCompanies(){StringBuilder z=new StringBuilder();for(int i=0;i<companies.length;i++){if(i>0)z.append("|");z.append(companies[i]);}db.edit().putString("catalog_companies",z.toString()).apply();}
+ int ensureCompany(String name){name=name.trim().toUpperCase(new Locale("es","AR"));for(int i=0;i<companies.length;i++)if(companies[i].equalsIgnoreCase(name))return i;if(name.length()==0)return 0;String[] n=Arrays.copyOf(companies,companies.length+1);n[n.length-1]=name;companies=n;saveCompanies();return n.length-1;}
  protected void onActivityResult(int req,int res,Intent data){super.onActivityResult(req,res,data);if(req==700&&res==RESULT_OK&&data!=null&&data.getData()!=null){try{getContentResolver().takePersistableUriPermission(data.getData(),Intent.FLAG_GRANT_READ_URI_PERMISSION);}catch(Exception e){}String k="photo_"+wk()+"_"+photoRow+"_"+photoDay+"_"+photoIdx;String old=db.getString(k,"");db.edit().putString(k,old.length()==0?data.getData().toString():old+"||"+data.getData()).apply();saveHistory("FOTO",companies[photoRow]+" · "+days[photoDay]);Toast.makeText(this,"Evidencia agregada",Toast.LENGTH_SHORT).show();}}
  TextView tx(String s,int z,int c){TextView v=new TextView(this);v.setText(s);v.setTextSize(z);v.setTextColor(c);v.setPadding(14,10,14,10);return v;}
  GradientDrawable shape(int c,float r){GradientDrawable g=new GradientDrawable();g.setColor(c);g.setCornerRadius(r);return g;}
@@ -27,8 +30,8 @@ public class MainActivity extends Activity {
   LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);TextView brand=tx("FAVORABLE\nVIAJES",22,GREEN);brand.setTypeface(null,1);top.addView(brand,new LinearLayout.LayoutParams(0,-2,1));
   Button p=bt("‹"),h=bt("HOY"),n=bt("›");top.addView(p);top.addView(h);top.addView(n);root.addView(top);
   weekTitle=tx("",16,WHITE);weekTitle.setGravity(Gravity.CENTER);weekTitle.setTypeface(null,1);root.addView(weekTitle);
-  LinearLayout nav=new LinearLayout(this);nav.setOrientation(LinearLayout.HORIZONTAL);String[] ns={"+ VIAJE","★","ESTAD.","HIST.","BACKUP","REST."};
-  for(String s:ns){Button x=bt(s);nav.addView(x,new LinearLayout.LayoutParams(0,64,1));if(s.startsWith("+"))x.setOnClickListener(v->chooseDay());if(s.startsWith("EST"))x.setOnClickListener(v->stats());if(s.equals("★"))x.setOnClickListener(v->{favoritesOnly=!favoritesOnly;render();});if(s.startsWith("HIST"))x.setOnClickListener(v->history());if(s.equals("BACKUP"))x.setOnClickListener(v->backup());if(s.equals("REST."))x.setOnClickListener(v->restoreLatest());}
+  LinearLayout nav=new LinearLayout(this);nav.setOrientation(LinearLayout.HORIZONTAL);String[] ns={"+ VIAJE","BUSCAR","★","ESTAD.","HIST.","BACKUP"};
+  for(String s:ns){Button x=bt(s);nav.addView(x,new LinearLayout.LayoutParams(0,64,1));if(s.startsWith("+"))x.setOnClickListener(v->chooseDay());if(s.equals("BUSCAR"))x.setOnClickListener(v->searchTrips());if(s.startsWith("EST"))x.setOnClickListener(v->stats());if(s.equals("★"))x.setOnClickListener(v->{favoritesOnly=!favoritesOnly;render();});if(s.startsWith("HIST"))x.setOnClickListener(v->history());if(s.equals("BACKUP")){x.setOnClickListener(v->backup());x.setOnLongClickListener(v->{restoreLatest();return true;});}}
   root.addView(nav);
   HorizontalScrollView hs=new HorizontalScrollView(this);hs.setFillViewport(true);ScrollView sv=new ScrollView(this);board=new LinearLayout(this);board.setOrientation(LinearLayout.VERTICAL);sv.addView(board);hs.addView(sv);root.addView(hs,new LinearLayout.LayoutParams(-1,0,1));
   foot=tx("",12,MUTED);root.addView(foot);
@@ -59,6 +62,7 @@ public class MainActivity extends Activity {
   }
   foot.setText("Viajes "+total+"   •   Realizados "+done+"   •   En curso "+course+"   •   Pendientes "+pending+"   •   Reprogramados "+repro+"   •   Cancelados "+cancel);
  }
+ void searchTrips(){final EditText q=new EditText(this);q.setHint("Empresa, material, chofer, patente...");new AlertDialog.Builder(this).setTitle("Buscar viajes").setView(q).setPositiveButton("BUSCAR",(a,b)->{String needle=q.getText().toString().toLowerCase(new Locale("es","AR"));StringBuilder out=new StringBuilder();for(int r=0;r<companies.length;r++)for(int d=0;d<7;d++)for(String v:trips(r,d)){String hay=(companies[r]+" "+days[d]+" "+v).toLowerCase(new Locale("es","AR"));if(hay.contains(needle))out.append(companies[r]).append(" · ").append(days[d]).append("\n").append(v).append("\n\n");}new AlertDialog.Builder(this).setTitle("Resultados").setMessage(out.length()==0?"Sin resultados":out.toString()).setPositiveButton("Cerrar",null).show();}).setNegativeButton("Cancelar",null).show();}
  void chooseDay(){new AlertDialog.Builder(this).setTitle("¿Qué día es el viaje?").setItems(days,(a,d)->form("",d)).show();}
  void form(String company,int day){
   ScrollView sc=new ScrollView(this);LinearLayout f=new LinearLayout(this);f.setOrientation(LinearLayout.VERTICAL);f.setPadding(28,8,28,8);sc.addView(f);
@@ -75,7 +79,7 @@ public class MainActivity extends Activity {
  }
  TextView label(String s){TextView v=tx(s,11,MUTED);v.setTypeface(null,1);return v;}
  Spinner spin(String[] a){Spinner s=new Spinner(this);ArrayAdapter<String>x=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,a);s.setAdapter(x);return s;}
- int findCompany(String s){for(int i=0;i<companies.length;i++)if(companies[i].equalsIgnoreCase(s.trim()))return i;return companies.length-1;}
+ int findCompany(String s){return ensureCompany(s);}
  void tripMenu(int r,int d){String[] list=trips(r,d);if(list.length>1){String[] names=new String[list.length];for(int i=0;i<list.length;i++)names[i]=(i+1)+" · "+list[i];new AlertDialog.Builder(this).setTitle(companies[r]+" · "+days[d]+" · VIAJES").setItems(names,(a,i)->tripActions(r,d,i)).setNegativeButton("+ NUEVO VIAJE",(a,b)->form(companies[r],d)).show();return;}tripActions(r,d,0);}
  void tripActions(int r,int d,int idx){String[] list=trips(r,d);if(list.length==0)return;String v=list[idx];String[] a={"VER VIAJE","CAMBIAR ESTADO","EDITAR / REPROGRAMAR","DUPLICAR","FOTOS / EVIDENCIAS","GENERAR PDF","CANCELAR VIAJE"};new AlertDialog.Builder(this).setTitle(companies[r]+" · "+days[d]+"\n"+v).setItems(a,(x,w)->{if(w==0)new AlertDialog.Builder(this).setTitle("Ficha del viaje · "+companies[r]+" · "+days[d]).setMessage("SEMANA: "+weekTitle.getText()+"\n\n"+v+"\n\nToque CAMBIAR ESTADO para avanzar el viaje.\nMantenga pulsada una empresa para marcarla favorita.").setPositiveButton("Cerrar",null).show();if(w==1)stateDialog(r,d,idx,v);if(w==2)form(companies[r],d);if(w==3){int nd=(d+1)%7;appendTrip(r,nd,v);saveHistory("DUPLICADO",companies[r]+" · "+days[d]+" → "+days[nd]);render();}if(w==4)photos(r,d,idx);if(w==5)makePdf(r,d,v);if(w==6){replaceTrip(r,d,idx,v.replace("PROGRAMADO","CANCELADO").replace("EN CURSO","CANCELADO").replace("PEDIDO PENDIENTE","CANCELADO"));saveHistory("CANCELADO",companies[r]+" · "+days[d]);render();}}).show();}
  void replaceTrip(int r,int d,int idx,String nv){String[] a=trips(r,d);if(idx<0||idx>=a.length)return;a[idx]=nv;StringBuilder z=new StringBuilder();for(int i=0;i<a.length;i++){if(i>0)z.append("||");z.append(a[i]);}db.edit().putString(key(r,d),z.toString()).apply();}
