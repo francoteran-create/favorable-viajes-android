@@ -9,6 +9,10 @@ public class MainActivity extends Activity {
  LinearLayout root,board; TextView weekTitle,foot; Calendar week=Calendar.getInstance(); SharedPreferences db;
  String[] days={"LUN","MAR","MIÉ","JUE","VIE","SÁB","DOM"};
  String[] companies={"ARCOR","BODEGA MONTEVIEJO","HOLCIM","CLIENTES VARIOS","EMPRESA / CLIENTE"};
+ String[] trailers={"SIN ACOPLADO","AE 056 WL · ACOPLADO","CMC 802 · ACOPLADO","TCM 673 · ACOPLADO","TDH 077 · ACOPLADO"};
+ String[] materials={"CARTON","VIDRIO","STRECH","TERMOCONTRAIBLE","ALUMINIO","CHATARRA","PET CRISTAL","BIDONES","COLOR"};
+ String[] destinations={"RELLENO SANITARIO","HOLCIM","FAVORABLE","OTRO"};
+ String[] states={"PEDIDO PENDIENTE","PROGRAMADO","EN CURSO","REALIZADO","REPROGRAMADO","CANCELADO"};
  String[] drivers={"AGUERO EDGARDO JESUS","CATALDO DANIEL HECTOR","CATALDO FRANCO","CATALDO SERGIO JAVIER","FUNES FABIAN ROQUE","GINIOLI MATIAS VICENTE","MELA GERARDO DARIO","OLMOS JUAN CARLOS","SOTELO FRANCO"};
  String[] trucks={"AC 592 VP · IVECO EUROCARGO","AG 824 DR · IVECO TECTOR","AD 604 WN · IVECO DAILY","AD 670 RD · IVECO TECTOR","AE 056 WX · IVECO TECTOR","AF 252 GE · IVECO TECTOR","DOJ 270 · M. BENZ LK","GIP 868 · M. BENZ L","ILH 135 · IVECO DAILY","OIN 428 · FORD CARGO","PQJ 269 · IVECO EUROCARGO","DPI439 · M. BENZ LK","AI 375 JY · IVECO TECTOR"};
  public void onCreate(Bundle b){super.onCreate(b);db=getSharedPreferences("viajes",0);build();}
@@ -45,13 +49,17 @@ public class MainActivity extends Activity {
   EditText tm=new EditText(this);tm.setHint("Hora · 08:30");f.addView(tm);
   Spinner ser=spin(new String[]{"RETIRO DE MATERIALES","SERVICIO DE RETIRO"});f.addView(label("Servicio"));f.addView(ser);
   Spinner drv=spin(drivers);f.addView(label("Chofer"));f.addView(drv);Spinner tr=spin(trucks);f.addView(label("Camión"));f.addView(tr);
+  Spinner trail=spin(trailers);f.addView(label("Acoplado"));f.addView(trail);
   Spinner cont=spin(new String[]{"GDE 30 ROLL","MED 20 ROLL","CHICO 15 ROLL","GDE 18 PORTA","CHICO 8 PORTA"});f.addView(label("Contenedor"));f.addView(cont);
+  Spinner dest=spin(destinations);f.addView(label("Destino / disposición"));f.addView(dest);
+  Spinner st=spin(states);st.setSelection(1);f.addView(label("Estado"));f.addView(st);
   EditText mat=new EditText(this);mat.setHint("Materiales: cartón, vidrio, PET...");f.addView(mat);EditText obs=new EditText(this);obs.setHint("Observaciones");f.addView(obs);
-  int target=day<0?0:day;new AlertDialog.Builder(this).setTitle("Nuevo viaje · "+days[target]).setView(sc).setPositiveButton("GUARDAR",(x,y)->{int row=findCompany(co.getText().toString());String val=(tm.getText().length()>0?tm.getText()+" ":"")+ser.getSelectedItem().toString()+" · PROGRAMADO";db.edit().putString(key(row,target),val).apply();render();}).setNegativeButton("Cancelar",null).show();
+  int target=day<0?0:day;new AlertDialog.Builder(this).setTitle("Nuevo viaje · "+days[target]).setView(sc).setPositiveButton("GUARDAR",(x,y)->{int row=findCompany(co.getText().toString());String val=(tm.getText().length()>0?tm.getText()+" ":"")+ser.getSelectedItem().toString()+" · "+st.getSelectedItem().toString();db.edit().putString(key(row,target),val).apply();render();}).setNegativeButton("Cancelar",null).show();
  }
  TextView label(String s){TextView v=tx(s,11,MUTED);v.setTypeface(null,1);return v;}
  Spinner spin(String[] a){Spinner s=new Spinner(this);ArrayAdapter<String>x=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,a);s.setAdapter(x);return s;}
  int findCompany(String s){for(int i=0;i<companies.length;i++)if(companies[i].equalsIgnoreCase(s.trim()))return i;return companies.length-1;}
- void tripMenu(int r,int d){String v=db.getString(key(r,d),"");String[] a={"VER VIAJE","MARCAR REALIZADO","REPROGRAMAR","DUPLICAR","ELIMINAR"};new AlertDialog.Builder(this).setTitle(companies[r]+" · "+days[d]+"\n"+v).setItems(a,(x,w)->{if(w==0)new AlertDialog.Builder(this).setTitle("Ficha del viaje").setMessage(v).setPositiveButton("Cerrar",null).show();if(w==1){db.edit().putString(key(r,d),v.replace("PROGRAMADO","REALIZADO")).apply();render();}if(w==2)form(companies[r],d);if(w==3){int nd=(d+1)%7;db.edit().putString(key(r,nd),v).apply();render();}if(w==4){db.edit().remove(key(r,d)).apply();render();}}).show();}
+ void tripMenu(int r,int d){String v=db.getString(key(r,d),"");String[] a={"VER VIAJE","CAMBIAR ESTADO","EDITAR / REPROGRAMAR","DUPLICAR","CANCELAR VIAJE"};new AlertDialog.Builder(this).setTitle(companies[r]+" · "+days[d]+"\n"+v).setItems(a,(x,w)->{if(w==0)new AlertDialog.Builder(this).setTitle("Ficha del viaje").setMessage(v).setPositiveButton("Cerrar",null).show();if(w==1)stateDialog(r,d,v);if(w==2)form(companies[r],d);if(w==3){int nd=(d+1)%7;db.edit().putString(key(r,nd),v).apply();render();}if(w==4){db.edit().putString(key(r,d),v.replace("PROGRAMADO","CANCELADO").replace("EN CURSO","CANCELADO").replace("PEDIDO PENDIENTE","CANCELADO")).apply();render();}}).show();}
+ void stateDialog(int r,int d,String v){new AlertDialog.Builder(this).setTitle("Cambiar estado").setItems(states,(x,i)->{String nv=v;for(String z:states)nv=nv.replace(z,states[i]);db.edit().putString(key(r,d),nv).apply();render();}).show();}
  void stats(){int total=0;for(int r=0;r<companies.length;r++)for(int d=0;d<7;d++)if(!db.getString(key(r,d),"").isEmpty())total++;new AlertDialog.Builder(this).setTitle("Estadísticas").setMessage("Viajes de la semana: "+total+"\n\nPanel estadístico en construcción: empresa · estado · material · chofer · camión · destino.").setPositiveButton("Cerrar",null).show();}
 }
