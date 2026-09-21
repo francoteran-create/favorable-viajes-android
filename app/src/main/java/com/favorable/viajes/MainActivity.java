@@ -28,7 +28,7 @@ public class MainActivity extends Activity {
   Button p=bt("‹"),h=bt("HOY"),n=bt("›");top.addView(p);top.addView(h);top.addView(n);root.addView(top);
   weekTitle=tx("",16,WHITE);weekTitle.setGravity(Gravity.CENTER);weekTitle.setTypeface(null,1);root.addView(weekTitle);
   LinearLayout nav=new LinearLayout(this);nav.setOrientation(LinearLayout.HORIZONTAL);String[] ns={"+ VIAJE","★","ESTAD.","HIST.","BACKUP","REST."};
-  for(String s:ns){Button x=bt(s);nav.addView(x,new LinearLayout.LayoutParams(0,64,1));if(s.startsWith("+"))x.setOnClickListener(v->form("",-1));if(s.startsWith("EST"))x.setOnClickListener(v->stats());if(s.equals("★"))x.setOnClickListener(v->{favoritesOnly=!favoritesOnly;render();});if(s.startsWith("HIST"))x.setOnClickListener(v->history());if(s.equals("BACKUP"))x.setOnClickListener(v->backup());if(s.equals("REST."))x.setOnClickListener(v->restoreLatest());}
+  for(String s:ns){Button x=bt(s);nav.addView(x,new LinearLayout.LayoutParams(0,64,1));if(s.startsWith("+"))x.setOnClickListener(v->chooseDay());if(s.startsWith("EST"))x.setOnClickListener(v->stats());if(s.equals("★"))x.setOnClickListener(v->{favoritesOnly=!favoritesOnly;render();});if(s.startsWith("HIST"))x.setOnClickListener(v->history());if(s.equals("BACKUP"))x.setOnClickListener(v->backup());if(s.equals("REST."))x.setOnClickListener(v->restoreLatest());}
   root.addView(nav);
   HorizontalScrollView hs=new HorizontalScrollView(this);hs.setFillViewport(true);ScrollView sv=new ScrollView(this);board=new LinearLayout(this);board.setOrientation(LinearLayout.VERTICAL);sv.addView(board);hs.addView(sv);root.addView(hs,new LinearLayout.LayoutParams(-1,0,1));
   foot=tx("",12,MUTED);root.addView(foot);
@@ -48,9 +48,9 @@ public class MainActivity extends Activity {
   if(screen<850){
    for(int r=0;r<companies.length;r++){if(favoritesOnly&&!db.getBoolean("fav_"+r,false))continue;final int rr=r;
     LinearLayout card=new LinearLayout(this);card.setOrientation(LinearLayout.VERTICAL);card.setPadding(16,12,16,14);card.setBackground(shape(PANEL,22));
-    TextView cn=tx((db.getBoolean("fav_"+r,false)?"★ ":"")+companies[r],17,WHITE);cn.setTypeface(null,1);cn.setOnLongClickListener(v->{boolean nv=!db.getBoolean("fav_"+rr,false);db.edit().putBoolean("fav_"+rr,nv).apply();render();return true;});card.addView(cn);
-    LinearLayout strip=new LinearLayout(this);strip.setOrientation(LinearLayout.HORIZONTAL);
-    for(int d=0;d<7;d++){final int dd=d;String val=db.getString(key(r,d),"");String label=days[d]+"\n"+(val.length()==0?"+":trips(r,d).length+" viaje"+(trips(r,d).length>1?"s":""));Button b=bt(label);if(val.length()>0)b.setTextColor(stateColor(val));b.setOnClickListener(v->{if(db.getString(key(rr,dd),"").isEmpty())form(companies[rr],dd);else tripMenu(rr,dd);});strip.addView(b,new LinearLayout.LayoutParams(0,76,1));for(String tv:trips(r,d)){total++;if(tv.contains("REALIZADO"))done++;else if(tv.contains("EN CURSO"))course++;else if(tv.contains("REPROGRAMADO"))repro++;else if(tv.contains("CANCELADO"))cancel++;else pending++;}}
+    TextView cn=tx((db.getBoolean("fav_"+r,false)?"★ ":"")+companies[r],18,WHITE);cn.setTypeface(null,1);cn.setOnLongClickListener(v->{boolean nv=!db.getBoolean("fav_"+rr,false);db.edit().putBoolean("fav_"+rr,nv).apply();render();return true;});card.addView(cn);
+    LinearLayout strip=new LinearLayout(this);strip.setOrientation(LinearLayout.HORIZONTAL);strip.setPadding(0,6,0,0);
+    for(int d=0;d<7;d++){final int dd=d;String val=db.getString(key(r,d),"");String label=days[d]+"\n"+(val.length()==0?"＋":trips(r,d).length+" VIAJE"+(trips(r,d).length>1?"S":""));Button b=bt(label);if(val.length()>0)b.setTextColor(stateColor(val));b.setOnClickListener(v->{if(db.getString(key(rr,dd),"").isEmpty())form(companies[rr],dd);else tripMenu(rr,dd);});b.setOnLongClickListener(v->{form(companies[rr],dd);return true;});strip.addView(b,new LinearLayout.LayoutParams(0,76,1));for(String tv:trips(r,d)){total++;if(tv.contains("REALIZADO"))done++;else if(tv.contains("EN CURSO"))course++;else if(tv.contains("REPROGRAMADO"))repro++;else if(tv.contains("CANCELADO"))cancel++;else pending++;}}
     card.addView(strip);Space sp=new Space(this);board.addView(card,new LinearLayout.LayoutParams(-1,-2));board.addView(sp,new LinearLayout.LayoutParams(1,10));
    }
   }else{
@@ -59,6 +59,7 @@ public class MainActivity extends Activity {
   }
   foot.setText("Viajes "+total+"   •   Realizados "+done+"   •   En curso "+course+"   •   Pendientes "+pending+"   •   Reprogramados "+repro+"   •   Cancelados "+cancel);
  }
+ void chooseDay(){new AlertDialog.Builder(this).setTitle("¿Qué día es el viaje?").setItems(days,(a,d)->form("",d)).show();}
  void form(String company,int day){
   ScrollView sc=new ScrollView(this);LinearLayout f=new LinearLayout(this);f.setOrientation(LinearLayout.VERTICAL);f.setPadding(28,8,28,8);sc.addView(f);
   EditText co=new EditText(this);co.setHint("Empresa / cliente");co.setText(company);f.addView(co);
