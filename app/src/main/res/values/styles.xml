@@ -1,1 +1,30 @@
-<resources><style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar"><item name="android:fontFamily">sans</item><item name="android:colorAccent">#79C943</item><item name="android:navigationBarColor">#0B0F0C</item><item name="android:statusBarColor">#0B0F0C</item><item name="android:windowLightStatusBar">false</item></style></resources>
+<resources>
+    <style name="AppTheme" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#79C943</item>
+        <item name="android:navigationBarColor">#0B0F0C</item>
+        <item name="android:statusBarColor">#0B0F0C</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowBackground">#070C09</item>
+        <item name="android:colorBackground">#070C09</item>
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <item name="android:textColorSecondary">#B1BEB5</item>
+        <item name="android:alertDialogTheme">@style/FavorableDarkDialog</item>
+        <item name="android:timePickerDialogTheme">@style/FavorableDarkDialog</item>
+    </style>
+
+    <style name="FavorableDarkDialog" parent="android:style/Theme.Material.Dialog.Alert">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#79C943</item>
+        <item name="android:windowBackground">#0A140E</item>
+        <item name="android:colorBackground">#0A140E</item>
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <item name="android:textColorSecondary">#B1BEB5</item>
+        <item name="android:windowTitleStyle">@style/FavorableDialogTitle</item>
+    </style>
+
+    <style name="FavorableDialogTitle" parent="@android:style/TextAppearance.Material.Title">
+        <item name="android:textColor">#EFBE37</item>
+    </style>
+</resources>
