@@ -62,3 +62,5 @@ runpy.run_path(str(Path(__file__).with_name("v19_formal_pdf.py")),run_name="__ma
 runpy.run_path(str(Path(__file__).with_name("v20_compile_repair.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v21_compile_hardening.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v22_visual_reactor.py")),run_name="__main__")
