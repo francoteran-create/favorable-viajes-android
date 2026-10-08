@@ -80,3 +80,5 @@ runpy.run_path(str(Path(__file__).with_name("v27_1_startup_hotfix.py")),run_name
 runpy.run_path(str(Path(__file__).with_name("v28_exact_8screens.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v29_exact_reference_content.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v30_exact_navigation.py")),run_name="__main__")
