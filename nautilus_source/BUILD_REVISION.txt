@@ -1,1 +1,1 @@
-Nautilus Presentismo V7.5: mobile shell, fixed bottom navigation, operational dashboard, reorganized modules.
+Nautilus Presentismo V8.0: V7.5 visual shell + exit confirmation + worker statistics and ranking.
