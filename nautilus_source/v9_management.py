@@ -90,3 +90,5 @@ runpy.run_path(str(Path(__file__).with_name("v32_dynamic_turns.py")),run_name="_
 runpy.run_path(str(Path(__file__).with_name("v33_employee_month.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v34_personal_report.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v35_real_reporting.py")),run_name="__main__")
