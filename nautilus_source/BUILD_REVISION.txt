@@ -1,1 +1,1 @@
-Nautilus Presentismo V6.0 build revision 2: diagnostic helper completed.
+Nautilus Presentismo V7.0 visual shell: dark premium controls and reference UI hierarchy.
