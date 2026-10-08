@@ -96,3 +96,5 @@ runpy.run_path(str(Path(__file__).with_name("v35_real_reporting.py")),run_name="
 runpy.run_path(str(Path(__file__).with_name("v36_more_actions.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v36_1_more_hotfix.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v37_consolidated_flow.py")),run_name="__main__")
