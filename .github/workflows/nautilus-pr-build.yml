@@ -53,6 +53,8 @@ jobs:
         run: python3 nautilus_source/v9_profiles.py
       - name: Apply Nautilus V9 management hub
         run: python3 nautilus_source/v9_management.py
+      - name: Apply V9 engine compatibility
+        run: python3 nautilus_source/v9_compat.py
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
