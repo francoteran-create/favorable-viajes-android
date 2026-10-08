@@ -106,3 +106,5 @@ runpy.run_path(str(Path(__file__).with_name("v39_runtime_schema_repair.py")),run
 runpy.run_path(str(Path(__file__).with_name("v40_quick_report_core.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v40_1_compile_fix.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v40_2_compile_fix.py")),run_name="__main__")
