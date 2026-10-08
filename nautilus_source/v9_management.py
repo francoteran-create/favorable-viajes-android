@@ -20,3 +20,17 @@ s=s.replace(marker,code+"\n"+marker)
 s=s.replace('void statsHub(){','void statsHub(){')
 s=s.replace('btn("ESTADÍSTICAS · PERSONAL Y SECTORES",this::statsHub);','btn("CONTROL Y ESTADÍSTICAS",this::managementSummary);')
 p.write_text(s)
+
+# V9 compatibility with the proven V6 attendance engine
+s=p.read_text()
+if 'String currentScreen=' not in s:
+ s=s.replace('static final int PICK=12, SAVE_REPORT=13;','static final int PICK=12, SAVE_REPORT=13; String currentScreen="HOY";')
+s=s.replace('dayResult(pid,day)','calcDay(pid,day)')
+s=s.replace('dayResult(pid,String.format(Locale.US,"%s-%02d",ym,d))','calcDay(pid,String.format(Locale.US,"%s-%02d",ym,d))')
+s=s.replace('r.present','r.worked>0')
+s=s.replace('r.lateMinutes','r.late')
+s=s.replace('r.clockMinutes','r.worked')
+# recognized minute display falls back to worked minutes in analytics; review-aware payroll remains untouched
+s=s.replace('r.recognizedMinutes','r.worked')
+p.write_text(s)
+print("V9 embedded compatibility applied")
