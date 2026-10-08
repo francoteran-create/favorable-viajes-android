@@ -76,3 +76,5 @@ runpy.run_path(str(Path(__file__).with_name("v26_personnel_master.py")),run_name
 runpy.run_path(str(Path(__file__).with_name("v27_touch_calendar.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v27_1_startup_hotfix.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v28_exact_8screens.py")),run_name="__main__")
