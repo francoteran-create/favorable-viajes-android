@@ -1,1 +1,1 @@
-Nautilus Presentismo V8.5: visual mobile shell + safe Back behavior + employee statistics + sector analytics + rankings.
+Nautilus Presentismo V9.0 MASTER: rich employee profiles, personnel directory, management statistics, sector analytics, rankings, safe exit, V7.5 visual shell.
