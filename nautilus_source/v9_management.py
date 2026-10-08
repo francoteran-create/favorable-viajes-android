@@ -38,3 +38,5 @@ print("V9 embedded compatibility applied")
 # V10 visual rebuild is applied by importing/running the dedicated transformer
 import runpy
 runpy.run_path(str(Path(__file__).with_name("v10_visual_rebuild.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v105_visual_structure.py")),run_name="__main__")
