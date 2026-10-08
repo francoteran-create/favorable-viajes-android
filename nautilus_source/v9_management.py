@@ -100,3 +100,5 @@ runpy.run_path(str(Path(__file__).with_name("v36_1_more_hotfix.py")),run_name="_
 runpy.run_path(str(Path(__file__).with_name("v37_consolidated_flow.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v38_startup_hardening.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v39_runtime_schema_repair.py")),run_name="__main__")
