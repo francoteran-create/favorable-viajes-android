@@ -43,6 +43,21 @@ jobs:
           assert " static class DayResult{" in s
           p.write_text(s.replace(" static class DayResult{",helper+"\n static class DayResult{"))
           PY
+      - name: Apply Nautilus V7 visual shell
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          p=Path(os.environ["PROJECT"])/"app/src/main/java/ar/com/nautiluscountry/presentismo/MainActivity.java"
+          s=p.read_text()
+          # Dark premium controls: remove the default light Android look globally.
+          s=s.replace('Button b=new Button(this);b.setText(s);', 'Button b=new Button(this);b.setText(s);b.setTextColor(Color.rgb(235,245,248));b.setTextSize(14);android.graphics.drawable.GradientDrawable gd=new android.graphics.drawable.GradientDrawable();gd.setColor(Color.rgb(9,29,39));gd.setCornerRadius(18);gd.setStroke(1,Color.rgb(31,116,145));b.setBackground(gd);')
+          # Make the home title and hierarchy visually closer to the approved mobile reference.
+          s=s.replace('NAUTILUS COUNTRY · PRESENTISMO', 'NAUTILUS COUNTRY\\nP R E S E N T I S M O')
+          # Rename daily entry point to the reference navigation language.
+          s=s.replace('TABLERO HOY', 'HOY · TABLERO')
+          p.write_text(s)
+          PY
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -55,8 +70,8 @@ jobs:
       - name: Stage APK
         run: |
           mkdir -p out
-          cp "$PROJECT/app/build/outputs/apk/debug/app-debug.apk" out/Nautilus-Presentismo-V6.0-PRUEBA.apk
+          cp "$PROJECT/app/build/outputs/apk/debug/app-debug.apk" out/Nautilus-Presentismo-V7.0-VISUAL.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: NAUTILUS-PRESENTISMO-APK
-          path: out/Nautilus-Presentismo-V6.0-PRUEBA.apk
+          name: NAUTILUS-PRESENTISMO-V7-VISUAL-APK
+          path: out/Nautilus-Presentismo-V7.0-VISUAL.apk
