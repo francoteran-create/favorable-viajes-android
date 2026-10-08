@@ -13,5 +13,6 @@ s=s.replace('r.lateMinutes','r.late')
 s=s.replace('r.clockMinutes','r.worked')
 # recognized minutes are review-aware; use engine helper with the current day where available.
 s=s.replace('r.recognizedMinutes','recognized(pid,day,r)')
+s=s.replace('DayResult r=calcDay(pid,String.format(Locale.US,"%s-%02d",ym,d));','String day=String.format(Locale.US,"%s-%02d",ym,d);DayResult r=calcDay(pid,day);')
 p.write_text(s)
 print("V9 compatibility applied")
