@@ -50,3 +50,5 @@ runpy.run_path(str(Path(__file__).with_name("v13_core_reference_screens.py")),ru
 runpy.run_path(str(Path(__file__).with_name("v14_reports_incidents_more.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v15_compile_cleanup.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v16_nuclear_fidelity.py")),run_name="__main__")
