@@ -34,3 +34,7 @@ s=s.replace('r.clockMinutes','r.worked')
 s=s.replace('r.recognizedMinutes','r.worked')
 p.write_text(s)
 print("V9 embedded compatibility applied")
+
+# V10 visual rebuild is applied by importing/running the dedicated transformer
+import runpy
+runpy.run_path(str(Path(__file__).with_name("v10_visual_rebuild.py")),run_name="__main__")
