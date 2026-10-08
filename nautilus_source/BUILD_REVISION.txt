@@ -1,1 +1,1 @@
-Nautilus Presentismo V8.0: V7.5 visual shell + exit confirmation + worker statistics and ranking.
+Nautilus Presentismo V8.5: visual mobile shell + safe Back behavior + employee statistics + sector analytics + rankings.
