@@ -60,3 +60,5 @@ runpy.run_path(str(Path(__file__).with_name("v18_backup_hardening.py")),run_name
 runpy.run_path(str(Path(__file__).with_name("v19_formal_pdf.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v20_compile_repair.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v21_compile_hardening.py")),run_name="__main__")
