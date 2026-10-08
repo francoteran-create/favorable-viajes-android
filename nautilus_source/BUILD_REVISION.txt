@@ -1,1 +1,1 @@
-Nautilus Presentismo V7.0 visual shell: dark premium controls and reference UI hierarchy.
+Nautilus Presentismo V7.5: mobile shell, fixed bottom navigation, operational dashboard, reorganized modules.
