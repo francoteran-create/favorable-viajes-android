@@ -42,3 +42,5 @@ runpy.run_path(str(Path(__file__).with_name("v10_visual_rebuild.py")),run_name="
 runpy.run_path(str(Path(__file__).with_name("v105_visual_structure.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v11_profiles_reports.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v12_reference_fidelity.py")),run_name="__main__")
