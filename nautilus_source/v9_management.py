@@ -84,3 +84,5 @@ runpy.run_path(str(Path(__file__).with_name("v29_exact_reference_content.py")),r
 runpy.run_path(str(Path(__file__).with_name("v30_exact_navigation.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v31_live_data.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v32_dynamic_turns.py")),run_name="__main__")
