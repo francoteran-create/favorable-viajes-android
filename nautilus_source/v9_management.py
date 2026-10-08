@@ -70,3 +70,5 @@ runpy.run_path(str(Path(__file__).with_name("v23_visual_fusion.py")),run_name="_
 runpy.run_path(str(Path(__file__).with_name("v24_calendar_people.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v25_diagram_roster.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v26_personnel_master.py")),run_name="__main__")
