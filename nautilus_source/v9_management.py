@@ -66,3 +66,5 @@ runpy.run_path(str(Path(__file__).with_name("v21_compile_hardening.py")),run_nam
 runpy.run_path(str(Path(__file__).with_name("v22_visual_reactor.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v23_visual_fusion.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v24_calendar_people.py")),run_name="__main__")
