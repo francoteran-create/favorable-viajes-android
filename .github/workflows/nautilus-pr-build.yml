@@ -47,6 +47,8 @@ jobs:
         run: python3 nautilus_source/apply_v75_visual.py
       - name: Apply Nautilus V8 exit and worker statistics
         run: python3 nautilus_source/apply_v80_stats_exit.py
+      - name: Apply Nautilus V8.5 management analytics
+        run: python3 nautilus_source/apply_v85_management.py
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -59,8 +61,8 @@ jobs:
       - name: Stage APK
         run: |
           mkdir -p out
-          cp "$PROJECT/app/build/outputs/apk/debug/app-debug.apk" out/Nautilus-Presentismo-V8.0-ESTADISTICAS.apk
+          cp "$PROJECT/app/build/outputs/apk/debug/app-debug.apk" out/Nautilus-Presentismo-V8.5-GESTION.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: NAUTILUS-PRESENTISMO-V8-ESTADISTICAS-APK
-          path: out/Nautilus-Presentismo-V8.0-ESTADISTICAS.apk
+          name: NAUTILUS-PRESENTISMO-V8.5-GESTION-APK
+          path: out/Nautilus-Presentismo-V8.5-GESTION.apk
