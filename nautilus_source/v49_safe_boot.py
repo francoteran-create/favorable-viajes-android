@@ -3,7 +3,7 @@ import os
 p=Path(os.environ["PROJECT"])/"app/src/main/java/ar/com/nautiluscountry/presentismo/MainActivity.java"
 s=p.read_text()
 # Install crash recorder before any database/UI startup work.
-needle="super.onCreate(savedInstanceState);"
+needle="setContentView(root);"
 assert needle in s
 handler=r'''
   Thread.setDefaultUncaughtExceptionHandler((thread,error)->{
@@ -38,7 +38,7 @@ code=r'''
 '''
 s=s.replace(mark,code+"\n"+mark)
 # Replace only first startup exactToday invocation after onCreate region with safeBootHome.
-start=s.find("protected void onCreate")
+start=s.find("void onCreate")
 end=s.find("\n }",start)
 segment=s[start:end]
 idx=segment.rfind("exactToday();")
