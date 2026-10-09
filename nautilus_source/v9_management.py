@@ -146,3 +146,5 @@ runpy.run_path(str(Path(__file__).with_name("v52_2_compile_fix.py")),run_name="_
 runpy.run_path(str(Path(__file__).with_name("v53_master_components_only.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v54_personnel_photo_home.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v55_readable_components.py")),run_name="__main__")
