@@ -160,3 +160,5 @@ runpy.run_path(str(Path(__file__).with_name("v57_master_shell.py")),run_name="__
 runpy.run_path(str(Path(__file__).with_name("v58_explicit_menus.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v58_1_compile_fix.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v59_cinematic_native_home.py")),run_name="__main__")
