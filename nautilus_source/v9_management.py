@@ -126,3 +126,5 @@ runpy.run_path(str(Path(__file__).with_name("v45_home_day_control.py")),run_name
 runpy.run_path(str(Path(__file__).with_name("v46_premium_nav.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v47_unified_modules.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v48_person_photo.py")),run_name="__main__")
