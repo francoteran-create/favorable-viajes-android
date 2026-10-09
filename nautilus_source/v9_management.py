@@ -132,3 +132,5 @@ runpy.run_path(str(Path(__file__).with_name("v48_person_photo.py")),run_name="__
 runpy.run_path(str(Path(__file__).with_name("v48_1_release_fix.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v49_safe_boot.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v50_reference_home.py")),run_name="__main__")
