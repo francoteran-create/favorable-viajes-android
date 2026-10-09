@@ -138,3 +138,5 @@ runpy.run_path(str(Path(__file__).with_name("v50_reference_home.py")),run_name="
 runpy.run_path(str(Path(__file__).with_name("v51_functional_reference.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v52_master_image_home.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v52_1_compile_fix.py")),run_name="__main__")
