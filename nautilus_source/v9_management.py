@@ -162,3 +162,5 @@ runpy.run_path(str(Path(__file__).with_name("v58_explicit_menus.py")),run_name="
 runpy.run_path(str(Path(__file__).with_name("v58_1_compile_fix.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v59_cinematic_native_home.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v60_real_lake_photo.py")),run_name="__main__")
