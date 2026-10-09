@@ -156,3 +156,5 @@ runpy.run_path(str(Path(__file__).with_name("v56_global_ui_compat.py")),run_name
 runpy.run_path(str(Path(__file__).with_name("v56_1_compile_fix.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v57_master_shell.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v58_explicit_menus.py")),run_name="__main__")
