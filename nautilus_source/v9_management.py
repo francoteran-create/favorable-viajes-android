@@ -112,3 +112,5 @@ runpy.run_path(str(Path(__file__).with_name("v40_2_compile_fix.py")),run_name="_
 runpy.run_path(str(Path(__file__).with_name("v41_week_planning.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v41_1_visual_compile_fix.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v42_home_skin.py")),run_name="__main__")
