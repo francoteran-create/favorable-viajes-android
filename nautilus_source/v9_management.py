@@ -174,3 +174,5 @@ runpy.run_path(str(Path(__file__).with_name("v63_dual_clock_import.py")),run_nam
 runpy.run_path(str(Path(__file__).with_name("v64_calendar_accessibility.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v65_remove_hoy.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v66_back_navigation.py")),run_name="__main__")
