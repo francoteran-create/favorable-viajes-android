@@ -176,3 +176,5 @@ runpy.run_path(str(Path(__file__).with_name("v64_calendar_accessibility.py")),ru
 runpy.run_path(str(Path(__file__).with_name("v65_remove_hoy.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v66_back_navigation.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v67_retire_today_dashboard.py")),run_name="__main__")
