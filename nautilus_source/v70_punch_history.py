@@ -62,11 +62,5 @@ s=s.replace(mark,code+"\n"+mark,1)
 s=s.replace('mtAddLink("●","REVISAR PERSONAL","Ver empleados y completar datos faltantes",this::mtPersonnel);',
  '''mtAddLink("▣","VER FICHADAS IMPORTADAS","Historial por fecha, persona y horario",this::importedPunchHistory);
   mtAddLink("●","REVISAR PERSONAL","Ver empleados y completar datos faltantes",this::mtPersonnel);''',1)
-# On success, a direct action for the stored punch history, not the unrelated current-day dashboard.
-s=s.replace('Los empleados nuevos quedaron en \\'Sin configurar\\' para asignarles sector y régimen.",this::masterImageHomeV59)',
- '''Para ver las fichadas, tocá VER FICHADAS IMPORTADAS en el menú de importación.",this::importedPunchHistory)''')
-# Some previous variants keep this::home as callback; normalize it too.
-s=s.replace('Los empleados nuevos quedaron en \\'Sin configurar\\' para asignarles sector y régimen.",this::home)',
- '''Para ver las fichadas, tocá VER FICHADAS IMPORTADAS en el menú de importación.",this::importedPunchHistory)''')
 p.write_text(s)
-print("V70 historical punches by date/person from database, independent from TODAY and schedules")
+print("V70 history of real punches by stored date")
