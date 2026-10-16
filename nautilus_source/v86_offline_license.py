@@ -139,7 +139,7 @@ s=s.replace('  mtAddLink("▶","ENTRAR AL SISTEMA"', '''  mtAddLink("♧",secPre
   mtAddLink("▶","ENTRAR AL SISTEMA"''',1)
 # Route key-file import through the existing Android activity-result handler.
 import re
-m=re.search(r'(?:protected|public)\\s+void\\s+onActivityResult\\s*\\(([^)]*)\\)\\s*\\{',s)
+m=re.search(r'\\bvoid\\s+onActivityResult\\s*\\(([^)]*)\\)\\s*\\{',s)
 assert m,"Existing Android onActivityResult not found"
 params=[x.strip().split()[-1] for x in m.group(1).split(",")]
 assert len(params)==3,params
