@@ -44,7 +44,7 @@ code=r'''
   Cursor c=db.getReadableDatabase().rawQuery("SELECT id,COALESCE(NULLIF(name,''),id) FROM people WHERE active=1 ORDER BY name",null);
   try{while(c.moveToNext()){
    String pid=c.getString(0),name=c.getString(1);long[] n=j80Counts(pid,from,to);
-   if(n[0]+n[1]+n[3]==0)continue;
+   // Todos los empleados activos aparecen, aun sin fichadas ni turnos en el mes.
    workers++;for(int i=0;i<n.length;i++)grand[i]+=n[i];
    LinearLayout box=mtPanel();
    TextView nameView=mtText(name+"  ›",14,Color.WHITE,true);box.addView(nameView);
@@ -70,13 +70,15 @@ code=r'''
  }
 '''
 s=s.replace(mark,code+'\n'+mark,1)
-# Place the employee jornada table and grand total BEFORE detailed punches in INFORME MENSUAL.
-# Preserve weekly report navigation and leave its layout unchanged.
+# Immediately after the period selector, show EVERY active employee and the total.
+# Follow with the detailed punch section, keeping weekly report behavior unchanged.
+needle='''  nav.addView(left,new LinearLayout.LayoutParams(0,mtDp(58),1));nav.addView(middle,new LinearLayout.LayoutParams(0,mtDp(58),2));nav.addView(right,new LinearLayout.LayoutParams(0,mtDp(58),1));body.addView(nav);'''
+assert needle in s
+s=s.replace(needle,needle+'\n  if(monthly)j80MonthlyTable(from,to);',1)
 needle='''  Cursor employees=db.getReadableDatabase().rawQuery(
    "SELECT x.person_id,COALESCE(NULLIF(p.name,''),x.person_id),COUNT(*),COUNT(DISTINCT substr(x.stamp,1,10)) "+'''
 assert needle in s
-s=s.replace(needle,'''  if(monthly)j80MonthlyTable(from,to);
-  body.addView(mtText("DETALLE DE FICHADAS POR EMPLEADO",15,mtGold(),true));
+s=s.replace(needle,'''  body.addView(mtText("DETALLE DE FICHADAS POR EMPLEADO",15,mtGold(),true));
 '''+needle,1)
 # Individual view gets clear day counts before charts.
 needle='''  body.addView(mtText(person+" · "+from+" — "+to,17,Color.WHITE,true));'''
