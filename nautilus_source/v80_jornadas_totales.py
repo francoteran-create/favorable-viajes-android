@@ -70,10 +70,14 @@ code=r'''
  }
 '''
 s=s.replace(mark,code+'\n'+mark,1)
-# Put the new per-worker day cards and total at the END of standard monthly/weekly report, after existing employee rows.
-needle='''  if(punches==0)mtAddLink("◷","SIN FICHADAS EN ESTE PERÍODO","Cambiá de mes o semana con las flechas",this::importedPunchHistory);'''
+# Place the employee jornada table and grand total BEFORE detailed punches in INFORME MENSUAL.
+# Preserve weekly report navigation and leave its layout unchanged.
+needle='''  Cursor employees=db.getReadableDatabase().rawQuery(
+   "SELECT x.person_id,COALESCE(NULLIF(p.name,''),x.person_id),COUNT(*),COUNT(DISTINCT substr(x.stamp,1,10)) "+'''
 assert needle in s
-s=s.replace(needle,needle+'\n  j80MonthlyTable(from,to);',1)
+s=s.replace(needle,'''  if(monthly)j80MonthlyTable(from,to);
+  body.addView(mtText("DETALLE DE FICHADAS POR EMPLEADO",15,mtGold(),true));
+'''+needle,1)
 # Individual view gets clear day counts before charts.
 needle='''  body.addView(mtText(person+" · "+from+" — "+to,17,Color.WHITE,true));'''
 assert needle in s
