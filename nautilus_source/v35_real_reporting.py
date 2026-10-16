@@ -1,0 +1,18 @@
+from pathlib import Path
+import os
+p=Path(os.environ["PROJECT"])/"app/src/main/java/ar/com/nautiluscountry/presentismo/MainActivity.java"
+s=p.read_text(); mark=' void btn(String s,Runnable r){'; assert mark in s
+code=r'''
+ void exactLiveIncidents(){
+  currentScreen="INCIDENCIAS";base("INCIDENCIAS");String day=new SimpleDateFormat("yyyy-MM-dd",Locale.US).format(new Date());body.addView(refHero("INCIDENCIAS",new SimpleDateFormat("MMMM yyyy",new Locale("es","AR")).format(new Date())+" · Todos los sectores"));int total=0;Cursor c=db.getReadableDatabase().rawQuery("SELECT id,name,sector FROM people WHERE active=1 ORDER BY sector,name",null);while(c.moveToNext()){String id=c.getString(0),name=c.getString(1),sec=c.getString(2);DayResult r=calcDay(id,day);if(r==null||!r.expected)continue;String issue=null;if(r.worked<=0)issue="No registró entrada";else if(r.late>0)issue="Llegó tarde ("+r.late+" min)";if(issue==null)continue;total++;int co=r.worked<=0?Color.rgb(235,82,82):Color.rgb(244,190,46);LinearLayout row=employeeDayCard(id,name,sec,issue,"REVISAR",co);final String fid=id;row.setOnClickListener(v->exactEmployeeReport(fid));body.addView(row);}c.close();if(total==0)body.addView(referenceRow("✓","SIN INCIDENCIAS","No hay novedades pendientes para hoy","",Color.rgb(48,205,166)));exactBottom("INFORMES");
+ }
+ void exactLiveMonthly(){
+  currentScreen="INFORME";base("INFORME MENSUAL");body.addView(refHero("INFORME MENSUAL DE PRESENTISMO",new SimpleDateFormat("MMMM yyyy",new Locale("es","AR")).format(new Date())));int exp=0,work=0,abs=0,late=0;Cursor pc=db.getReadableDatabase().rawQuery("SELECT id FROM people WHERE active=1",null);while(pc.moveToNext()){int[] n=employeeMonthNumbers(pc.getString(0));exp+=n[0];work+=n[1];abs+=n[2];late+=n[3];}pc.close();int pct=exp==0?0:(int)Math.round(work*100.0/exp);LinearLayout top=new LinearLayout(this);top.setOrientation(LinearLayout.HORIZONTAL);String[][] q={{""+exp,"PROGRAMADOS"},{""+work,"PRESENTES"},{""+abs,"AUSENCIAS"},{""+late,"TARDANZAS"},{pct+"%","PRESENTISMO"}};int[] cc={Color.rgb(60,105,125),Color.rgb(48,205,166),Color.rgb(235,82,82),Color.rgb(244,190,46),Color.rgb(48,205,166)};for(int i=0;i<5;i++){LinearLayout x=exactStat(q[i][0],q[i][1],cc[i]);LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,-2,1);lp.setMargins(2,3,2,3);top.addView(x,lp);}body.addView(top);sectionTitle("DETALLE POR SECTOR","Programados · trabajados · incidencias");Cursor sc=db.getReadableDatabase().rawQuery("SELECT name FROM sectors ORDER BY name",null);while(sc.moveToNext()){String sec=sc.getString(0);int se=0,sw=0,si=0;Cursor ep=db.getReadableDatabase().rawQuery("SELECT id FROM people WHERE active=1 AND sector=?",new String[]{sec});while(ep.moveToNext()){int[] n=employeeMonthNumbers(ep.getString(0));se+=n[0];sw+=n[1];si+=n[2]+n[3];}ep.close();body.addView(referenceRow("◈",sec,"Programados "+se,"Trabajados "+sw+" · Inc. "+si,si>0?Color.rgb(244,190,46):Color.rgb(48,205,166)));}sc.close();btn("VER INCIDENCIAS",this::exactLiveIncidents);btn("EXPORTAR CSV / EXCEL",this::exportCsv);btn("GENERAR PDF",this::reports);exactBottom("INFORMES");
+ }
+'''
+s=s.replace(mark,code+"\n"+mark)
+s=s.replace('v->exactIncidents()','v->exactLiveIncidents()')
+# monthly report card first click currently chooseMonth; route direct current-month live report where exact report cards are wired.
+s=s.replace('body.getChildAt(body.getChildCount()-5).setOnClickListener(v->chooseMonth());','body.getChildAt(body.getChildCount()-5).setOnClickListener(v->exactLiveMonthly());')
+s=s.replace('V34 PERSONAL REPORT','V35 REAL REPORTING')
+p.write_text(s);print("V35 real reporting applied")
