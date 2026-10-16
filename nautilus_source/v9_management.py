@@ -213,3 +213,4 @@ runpy.run_path(str(Path(__file__).with_name("v83_local_access.py")),run_name="__
 runpy.run_path(str(Path(__file__).with_name("v84_splash.py")),run_name="__main__")
 runpy.run_path(str(Path(__file__).with_name("v86_offline_license.py")),run_name="__main__")
 runpy.run_path(str(Path(__file__).with_name("v87_owner_isolation.py")),run_name="__main__")
+runpy.run_path(str(Path(__file__).with_name("v88_developer_access.py")),run_name="__main__")
