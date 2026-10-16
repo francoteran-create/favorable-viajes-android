@@ -18,7 +18,8 @@ code=r'''
   }
   body.addView(mtText(total+" MARCACIONES GUARDADAS · "+people+" EMPLEADOS",18,Color.WHITE,true));
   body.addView(mtText("Período: "+first+" al "+last,13,mtPale(),false));
-  mtAddLink("◷","VER ÚLTIMA FECHA CON DATOS",last+" · detalle del día",()->importedPunchDay(last));
+  final String lastDay=last;
+  mtAddLink("◷","VER ÚLTIMA FECHA CON DATOS",lastDay+" · detalle del día",()->importedPunchDay(lastDay));
   Cursor days=r.rawQuery("SELECT substr(stamp,1,10) AS d, COUNT(*),COUNT(DISTINCT person_id) FROM punches GROUP BY substr(stamp,1,10) ORDER BY d DESC LIMIT 120",null);
   try{
    while(days.moveToNext()){
