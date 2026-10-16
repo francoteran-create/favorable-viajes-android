@@ -35,7 +35,7 @@ code=r'''
   securityPromptOpen=true;
   android.widget.EditText a=new android.widget.EditText(this),b=new android.widget.EditText(this);
   a.setHint("PIN nuevo (4 a 6 números)");b.setHint("Repetir PIN");
-  a.setInputType(18);b.setInputType(18);
+  a.setInputType(18);b.setInputType(18);a.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(6)});b.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(6)});
   LinearLayout lay=new LinearLayout(this);lay.setOrientation(1);lay.setPadding(20,12,20,12);lay.addView(a);lay.addView(b);
   new AlertDialog.Builder(this).setTitle("CREAR SUPERADMINISTRADOR")
    .setMessage("Primer acceso local. Esta cuenta no vence. Guardá tu contraseña.")
@@ -85,11 +85,11 @@ code=r'''
  void secSetAdmin(int index){
   if(!securityOwner||!securityUnlocked){secGate();return;}
   android.widget.EditText input=new android.widget.EditText(this);input.setInputType(129);
-  input.setHint("Nueva contraseña (mínimo 10 caracteres)");
+  input.setHint("PIN de 4 a 6 números");input.setInputType(18);input.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(6)});
   new AlertDialog.Builder(this).setTitle(secNames[index-1]).setView(input)
    .setNegativeButton("CANCELAR",null).setPositiveButton("GUARDAR",(d,w)->{
     String pass=input.getText().toString();
-    if(pass.length()>=10)secSet("admin_"+index,pass);
+    if(pass.matches("[0-9]{4,6}"))secSet("admin_"+index,pass);
     secAdminPanel();
    }).show();
  }
