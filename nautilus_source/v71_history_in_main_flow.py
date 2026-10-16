@@ -30,10 +30,9 @@ s=s.replace(week,week+'''
   mtAddLink("◷","FICHADAS REALES","Consultar datos importados sin depender de turnos",this::importedPunchHistory);
 ''',1)
 # After successfully storing new records, navigate to the actual historical data.
-old='''msg("Importación terminada","Se agregaron "+n+" marcaciones nuevas.\n\nLos empleados nuevos quedaron en 'Sin configurar' para asignarles sector y régimen.",this::dualClockHub);'''
-assert old in s
-new='''msg("Importación terminada","Se agregaron "+n+" marcaciones nuevas. Tocá CONTINUAR para ver el historial realmente guardado.",this::importedPunchHistory);'''
-s=s.replace(old,new,1)
+import re
+s,n=re.subn(r'(msg\("Importación terminada",[\s\S]*?),this::dualClockHub\);',r'\1,this::importedPunchHistory);',s,count=1)
+assert n==1,"Import completion callback not found"
 # Show DB verification in history: direct count and date range. DO NOT use scheduled counts.
 s=s.replace('''  if(total==0){
    body.addView(mtText("NO HAY FICHADAS GUARDADAS.''','''  if(total==0){
