@@ -139,11 +139,11 @@ s=s.replace('  mtAddLink("▶","ENTRAR AL SISTEMA"', '''  mtAddLink("♧",secPre
   mtAddLink("▶","ENTRAR AL SISTEMA"''',1)
 # Route key-file import through the existing Android activity-result handler.
 import re
-m=re.search(r'onActivityResult\\s*\\(([^)]*)\\)\\s*\\{',s)
+m=re.search(r'onActivityResult\s*\(([^)]*)\)\s*\{',s)
 assert m,"Existing Android onActivityResult not found: "+str(s.find("onActivityResult"))+" "+s[max(0,s.find("onActivityResult")-150):s.find("onActivityResult")+180]
 params=[x.strip().split()[-1] for x in m.group(1).split(",")]
 assert len(params)==3,params
-dispatch="\\n  if("+params[0]+"==8601){licOwnerFileResult("+",".join(params)+");return;}\\n"
+dispatch="\n  if("+params[0]+"==8601){licOwnerFileResult("+",".join(params)+");return;}\n"
 s=s[:m.end()]+dispatch+s[m.end():]
 p.write_text(s)
 print("V86 offline verifier and merged import callback")
