@@ -182,3 +182,5 @@ runpy.run_path(str(Path(__file__).with_name("v67_retire_today_dashboard.py")),ru
 runpy.run_path(str(Path(__file__).with_name("v68_android_xml_parser_fix.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v69_logs_android_parser.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v70_punch_history.py")),run_name="__main__")
