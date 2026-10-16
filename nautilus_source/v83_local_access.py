@@ -74,7 +74,8 @@ code=r'''
    final int n=i+1;
    mtAddLink("♙",secNames[i],secPrefs().contains("admin_"+n+"_hash")?"CAMBIAR CONTRASEÑA":"ACTIVAR ADMINISTRADOR",()->secSetAdmin(n));
   }
-  mtAddLink("▶","ENTRAR AL SISTEMA","Abrir Nautilus Presentismo",this::safeBootHome);\n  mtAddLink("⇥","CERRAR SESIÓN","Bloquear el acceso",this::secGate);
+  mtAddLink("▶","ENTRAR AL SISTEMA","Abrir Nautilus Presentismo",this::safeBootHome);
+  mtAddLink("⇥","CERRAR SESIÓN","Bloquear el acceso",this::secGate);
  }
  void secSetAdmin(int index){
   if(!securityOwner||!securityUnlocked){secGate();return;}
@@ -96,5 +97,6 @@ mark=' void dualClockHub(){'
 assert mark in s
 s=s.replace(mark,''' @Override protected void onResume(){super.onResume();if(!securityUnlocked)secGate();}
 '''+mark,1)
-# Owner controls are reachable from the owner login landing screen.\np.write_text(s)
+# Owner controls are reachable from the owner login landing screen.
+p.write_text(s)
 print("Local login module applied")
