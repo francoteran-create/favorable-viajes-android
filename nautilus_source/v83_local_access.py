@@ -38,7 +38,7 @@ code=r'''
   a.setInputType(18);b.setInputType(18);a.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(6)});b.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(6)});
   LinearLayout lay=new LinearLayout(this);lay.setOrientation(1);lay.setPadding(20,12,20,12);lay.addView(a);lay.addView(b);
   new AlertDialog.Builder(this).setTitle("CREAR SUPERADMINISTRADOR")
-   .setMessage("Primer acceso local. Esta cuenta no vence. Guardá tu contraseña.")
+   .setMessage("Primer acceso local. Esta cuenta no vence. Guardá tu PIN.")
    .setView(lay).setCancelable(false).setPositiveButton("ACTIVAR",(d,w)->{
     String pass=a.getText().toString();
     if(!pass.matches("[0-9]{4,6}")||!pass.equals(b.getText().toString())){securityPromptOpen=false;new AlertDialog.Builder(this).setMessage("El PIN debe tener entre 4 y 6 números y coincidir.").setPositiveButton("REINTENTAR",(x,y)->secGate()).show();return;}
@@ -67,7 +67,7 @@ code=r'''
    .setView(input).setCancelable(false).setNegativeButton("VOLVER",(d,w)->secLogin())
    .setPositiveButton("INGRESAR",(d,w)->{
     if(secCheck(user,input.getText().toString())){
-     securityUnlocked=true;securityOwner=index==0;securityPromptOpen=false;if(securityOwner)secAdminPanel();else safeBootHome();
+     securityUnlocked=true;securityOwner=index==0;securityPromptOpen=false;if(index==0&&!secPrefs().getBoolean("owner_pin",false))secOwnerPin();else if(securityOwner)secAdminPanel();else safeBootHome();
     }else{
      new AlertDialog.Builder(this).setTitle("Contraseña incorrecta")
       .setPositiveButton("REINTENTAR",(x,y)->secPassword(index)).setCancelable(false).show();
