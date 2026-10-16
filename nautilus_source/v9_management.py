@@ -208,3 +208,5 @@ runpy.run_path(str(Path(__file__).with_name("v79_totals_worker_charts.py")),run_
 runpy.run_path(str(Path(__file__).with_name("v80_jornadas_totales.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v81_monthly_pdf_order.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v83_local_access.py")),run_name="__main__")
