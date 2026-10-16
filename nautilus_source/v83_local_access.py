@@ -39,7 +39,7 @@ code=r'''
    .setView(lay).setCancelable(false).setPositiveButton("ACTIVAR",(d,w)->{
     String pass=a.getText().toString();
     if(pass.length()<10||!pass.equals(b.getText().toString())){secEnroll();return;}
-    secSet("owner",pass);securityUnlocked=true;securityOwner=true;safeBootHome();
+    secSet("owner",pass);securityUnlocked=true;securityOwner=true;secAdminPanel();
    }).show();
  }
  void secLogin(){
@@ -60,7 +60,7 @@ code=r'''
    .setView(input).setCancelable(false).setNegativeButton("VOLVER",(d,w)->secLogin())
    .setPositiveButton("INGRESAR",(d,w)->{
     if(secCheck(user,input.getText().toString())){
-     securityUnlocked=true;securityOwner=index==0;safeBootHome();
+     securityUnlocked=true;securityOwner=index==0;if(securityOwner)secAdminPanel();else safeBootHome();
     }else{
      new AlertDialog.Builder(this).setTitle("Contraseña incorrecta")
       .setPositiveButton("REINTENTAR",(x,y)->secPassword(index)).setCancelable(false).show();
@@ -74,7 +74,7 @@ code=r'''
    final int n=i+1;
    mtAddLink("♙",secNames[i],secPrefs().contains("admin_"+n+"_hash")?"CAMBIAR CONTRASEÑA":"ACTIVAR ADMINISTRADOR",()->secSetAdmin(n));
   }
-  mtAddLink("⇥","CERRAR SESIÓN","Bloquear el acceso",this::secGate);
+  mtAddLink("▶","ENTRAR AL SISTEMA","Abrir Nautilus Presentismo",this::safeBootHome);\n  mtAddLink("⇥","CERRAR SESIÓN","Bloquear el acceso",this::secGate);
  }
  void secSetAdmin(int index){
   if(!securityOwner||!securityUnlocked){secGate();return;}
@@ -96,9 +96,5 @@ mark=' void dualClockHub(){'
 assert mark in s
 s=s.replace(mark,''' @Override protected void onResume(){super.onResume();if(!securityUnlocked)secGate();}
 '''+mark,1)
-# Owner controls are reachable without replacing the existing settings menu.
-needle='void moreMenu(){base("MÁS OPCIONES");'
-assert needle in s,"More menu location changed"
-s=s.replace(needle,needle+'if(securityOwner && securityUnlocked)mtAddLink("♙","SUPERADMINISTRADOR · USUARIOS","Gestionar accesos locales",this::secAdminPanel);',1)
-p.write_text(s)
+# Owner controls are reachable from the owner login landing screen.\np.write_text(s)
 print("Local login module applied")
