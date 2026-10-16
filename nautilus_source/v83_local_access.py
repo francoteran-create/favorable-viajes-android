@@ -89,17 +89,40 @@ code=r'''
  }
 '''
 s=s.replace(mark,code+'\n'+mark,1)
-# Replace onCreate's initial safe launcher only.
-start=s.find('void onCreate(')
-assert start!=-1
-end=s.find(' void ',start+14)
-chunk=s[start:end]
-assert 'safeBootHome();' in chunk,"Startup location not found"
-chunk=chunk.replace('safeBootHome();','secGate();',1)
-s=s[:start]+chunk+s[end:]
-# Add owner-only access from the actual More menu entry point; other menus remain unchanged.
-needle='void moreMenu(){'
-assert needle in s
-s=s.replace(needle,needle+'if(securityOwner && securityUnlocked){secAdminPanel();return;}',1)
+# Locate actual onCreate body with brace depth, not the next method declaration.
+import re
+m=re.search(r'\\bvoid\\s+onCreate\\s*\\([^)]*\\)\\s*\\{',s)
+assert m,"onCreate not found"
+start=m.end()-1
+depth=0
+end=None
+for pos in range(start,len(s)):
+ c=s[pos]
+ if c=='{':depth+=1
+ elif c=='}':
+  depth-=1
+  if depth==0:
+   end=pos
+   break
+assert end is not None
+chunk=s[start:end+1]
+if 'safeBootHome();' in chunk:
+ chunk=chunk.replace('safeBootHome();','secGate();',1)
+else:
+ # The existing boot sequence still executes before onResume; cover startup with
+ # a non-dismissible credential gate and prevent returning to a previously open session.
+ s=s[:end]+'\\n  // Authentication gate is invoked from onResume below.\\n'+s[end:]
+# Handle the case where safeBootHome was present.
+if 'secGate();' in chunk:
+ s=s[:start]+chunk+s[end+1:]
+else:
+ tag=' void dualClockHub(){'
+ assert tag in s
+ s=s.replace(tag,''' @Override protected void onResume(){super.onResume();if(!securityUnlocked)secGate();}
+'''+tag,1)
+# Owner controls are reachable without replacing the existing settings menu.
+needle='void moreMenu(){base("MÁS OPCIONES");'
+assert needle in s,"More menu location changed"
+s=s.replace(needle,needle+'if(securityOwner && securityUnlocked)mtAddLink("♙","SUPERADMINISTRADOR · USUARIOS","Gestionar accesos locales",this::secAdminPanel);',1)
 p.write_text(s)
 print("Local login module applied")
