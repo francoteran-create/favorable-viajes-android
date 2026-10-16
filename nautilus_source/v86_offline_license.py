@@ -68,8 +68,7 @@ code=r'''
   byte[] der=android.util.Base64.decode(b64,android.util.Base64.DEFAULT);
   return java.security.KeyFactory.getInstance("RSA").generatePrivate(new java.security.spec.PKCS8EncodedKeySpec(der));
  }
- @Override protected void onActivityResult(int request,int result,android.content.Intent data){
-  super.onActivityResult(request,result,data);
+ void licOwnerFileResult(int request,int result,android.content.Intent data){
   if(request!=8601)return;
   if(result!=RESULT_OK||data==null){secAdminPanel();return;}
   try{
@@ -138,5 +137,14 @@ s=s.replace(needle,'else if(securityOwner)secAdminPanel();else if(licActive())sa
 # the owner's key before issuing codes.
 s=s.replace('  mtAddLink("▶","ENTRAR AL SISTEMA"', '''  mtAddLink("♧",secPrefs().getBoolean("owner_issued",false)?"GENERAR LICENCIA":"ACTIVAR GENERADOR","Licencia válida solo el día de emisión",()->{if(secPrefs().getBoolean("owner_issued",false))licCreate();else licImportOwnerKey();});
   mtAddLink("▶","ENTRAR AL SISTEMA"''',1)
+# Route key-file import through the existing Android activity-result handler.
+import re
+m=re.search(r'(?:protected|public)\\s+void\\s+onActivityResult\\s*\\(([^)]*)\\)\\s*\\{',s)
+assert m,"Existing Android onActivityResult not found"
+params=[x.strip().split()[-1] for x in m.group(1).split(",")]
+assert len(params)==3,params
+dispatch="\\n  if("+params[0]+"==8601){licOwnerFileResult("+",".join(params)+");return;}\\n"
+s=s[:m.end()]+dispatch+s[m.end():]
 p.write_text(s)
-print("V86 offline verifier, trial and renewal gate installed")
+print("V86 offline verifier and merged import callback")
+
