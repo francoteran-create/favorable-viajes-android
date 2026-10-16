@@ -204,3 +204,5 @@ runpy.run_path(str(Path(__file__).with_name("v77_jornada_tolerancia.py")),run_na
 runpy.run_path(str(Path(__file__).with_name("v78_home_month_stats.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v79_totals_worker_charts.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v80_jornadas_totales.py")),run_name="__main__")
