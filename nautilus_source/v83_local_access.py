@@ -89,37 +89,13 @@ code=r'''
  }
 '''
 s=s.replace(mark,code+'\n'+mark,1)
-# Locate actual onCreate body with brace depth, not the next method declaration.
-import re
-m=re.search(r'\\bvoid\\s+onCreate\\s*\\([^)]*\\)\\s*\\{',s)
-assert m,"onCreate not found"
-start=m.end()-1
-depth=0
-end=None
-for pos in range(start,len(s)):
- c=s[pos]
- if c=='{':depth+=1
- elif c=='}':
-  depth-=1
-  if depth==0:
-   end=pos
-   break
-assert end is not None
-chunk=s[start:end+1]
-if 'safeBootHome();' in chunk:
- chunk=chunk.replace('safeBootHome();','secGate();',1)
-else:
- # The existing boot sequence still executes before onResume; cover startup with
- # a non-dismissible credential gate and prevent returning to a previously open session.
- s=s[:end]+'\\n  // Authentication gate is invoked from onResume below.\\n'+s[end:]
-# Handle the case where safeBootHome was present.
-if 'secGate();' in chunk:
- s=s[:start]+chunk+s[end+1:]
-else:
- tag=' void dualClockHub(){'
- assert tag in s
- s=s.replace(tag,''' @Override protected void onResume(){super.onResume();if(!securityUnlocked)secGate();}
-'''+tag,1)
+# The Android activity resumes after its original initialization. Invoke the
+# non-cancelable gate from onResume, without tampering with its existing boot.
+# v83 is an access prototype only; distributed licensing is NOT yet enabled.
+mark=' void dualClockHub(){'
+assert mark in s
+s=s.replace(mark,''' @Override protected void onResume(){super.onResume();if(!securityUnlocked)secGate();}
+'''+mark,1)
 # Owner controls are reachable without replacing the existing settings menu.
 needle='void moreMenu(){base("MÁS OPCIONES");'
 assert needle in s,"More menu location changed"
