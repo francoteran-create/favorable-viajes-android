@@ -62,7 +62,7 @@ code=r'''
   }
   if(secPrefs().getBoolean("skip_"+user,false)){securityUnlocked=true;securityOwner=index==0;securityPromptOpen=false;if(index==0&&!secPrefs().getBoolean("owner_pin",false))secOwnerPin();else if(securityOwner)secAdminPanel();else safeBootHome();return;}
   android.widget.EditText input=new android.widget.EditText(this);input.setHint("PIN numérico");input.setInputType(18);
-  if(index==0&&!secPrefs().getBoolean("owner_pin",false)){input.setHint("Contraseña anterior");input.setInputType(129);}
+  if(index==0&&!secPrefs().getBoolean("owner_pin",false)){input.setHint("Contraseña anterior, una sola vez");input.setInputType(129);}else input.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(6)});
   new AlertDialog.Builder(this).setTitle(index==0?"SUPERADMINISTRADOR":secNames[index-1])
    .setView(input).setCancelable(false).setNegativeButton("VOLVER",(d,w)->secLogin())
    .setPositiveButton("INGRESAR",(d,w)->{
@@ -72,6 +72,20 @@ code=r'''
      new AlertDialog.Builder(this).setTitle("Contraseña incorrecta")
       .setPositiveButton("REINTENTAR",(x,y)->secPassword(index)).setCancelable(false).show();
     }
+   }).show();
+ }
+ void secOwnerPin(){
+  android.widget.EditText first=new android.widget.EditText(this),again=new android.widget.EditText(this);
+  first.setHint("Nuevo PIN (4 a 6 dígitos)");again.setHint("Repetir PIN");
+  first.setInputType(18);again.setInputType(18);
+  first.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(6)});
+  again.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(6)});
+  LinearLayout panel=new LinearLayout(this);panel.setOrientation(1);panel.addView(first);panel.addView(again);
+  new AlertDialog.Builder(this).setTitle("CONFIGURAR PIN NUMÉRICO").setCancelable(false).setView(panel)
+   .setPositiveButton("GUARDAR",(d,w)->{
+    String pin=first.getText().toString();
+    if(!pin.matches("[0-9]{4,6}")||!pin.equals(again.getText().toString())){secOwnerPin();return;}
+    secSet("owner",pin);secPrefs().edit().putBoolean("owner_pin",true).commit();secAdminPanel();
    }).show();
  }
  void secAdminPanel(){
