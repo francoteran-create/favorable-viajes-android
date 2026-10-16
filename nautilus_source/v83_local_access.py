@@ -1,0 +1,105 @@
+from pathlib import Path
+import os
+p=Path(os.environ["PROJECT"])/"app/src/main/java/ar/com/nautiluscountry/presentismo/MainActivity.java"
+s=p.read_text()
+mark=' void dualClockHub(){'
+assert mark in s
+code=r'''
+ boolean securityUnlocked=false, securityOwner=false;
+ android.content.SharedPreferences secPrefs(){return getSharedPreferences("nautilus_auth_v83",MODE_PRIVATE);}
+ String secSalt(){byte[] b=new byte[16];new java.security.SecureRandom().nextBytes(b);return android.util.Base64.encodeToString(b,2);}
+ String secHash(String pass,String salt){
+  try{byte[] b=javax.crypto.SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(
+   new javax.crypto.spec.PBEKeySpec(pass.toCharArray(),android.util.Base64.decode(salt,2),180000,256)).getEncoded();
+   return android.util.Base64.encodeToString(b,2);
+  }catch(Exception ex){throw new RuntimeException(ex);}
+ }
+ void secSet(String user,String pass){
+  String salt=secSalt();secPrefs().edit().putString(user+"_salt",salt).putString(user+"_hash",secHash(pass,salt)).apply();
+ }
+ boolean secCheck(String user,String pass){
+  String salt=secPrefs().getString(user+"_salt",""),hash=secPrefs().getString(user+"_hash","");
+  if(salt.isEmpty()||hash.isEmpty())return false;
+  return java.security.MessageDigest.isEqual(hash.getBytes(java.nio.charset.StandardCharsets.UTF_8),
+    secHash(pass,salt).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+ }
+ String[] secNames={"David Ayub","Enzo Ahumada","Alejandro Diesel","Mario De Mingo"};
+ void secGate(){
+  securityUnlocked=false;securityOwner=false;
+  if(!secPrefs().contains("owner_hash")){secEnroll();return;}
+  secLogin();
+ }
+ void secEnroll(){
+  android.widget.EditText a=new android.widget.EditText(this),b=new android.widget.EditText(this);
+  a.setHint("Contraseña nueva");b.setHint("Repetir contraseña");
+  a.setInputType(129);b.setInputType(129);
+  LinearLayout lay=new LinearLayout(this);lay.setOrientation(1);lay.setPadding(20,12,20,12);lay.addView(a);lay.addView(b);
+  new AlertDialog.Builder(this).setTitle("CREAR SUPERADMINISTRADOR")
+   .setMessage("Primer acceso local. Esta cuenta no vence. Guardá tu contraseña.")
+   .setView(lay).setCancelable(false).setPositiveButton("ACTIVAR",(d,w)->{
+    String pass=a.getText().toString();
+    if(pass.length()<10||!pass.equals(b.getText().toString())){secEnroll();return;}
+    secSet("owner",pass);securityUnlocked=true;securityOwner=true;safeBootHome();
+   }).show();
+ }
+ void secLogin(){
+  String[] names=new String[5];names[0]="SUPERADMINISTRADOR";
+  for(int i=0;i<4;i++)names[i+1]=secNames[i];
+  new AlertDialog.Builder(this).setTitle("NAUTILUS · INGRESAR")
+   .setCancelable(false).setItems(names,(d,index)->secPassword(index)).show();
+ }
+ void secPassword(int index){
+  String user=index==0?"owner":"admin_"+index;
+  if(!secPrefs().contains(user+"_hash")){
+   new AlertDialog.Builder(this).setTitle("Cuenta sin activar")
+    .setMessage("El superadministrador debe asignar la contraseña de esta cuenta.")
+    .setPositiveButton("VOLVER",(d,w)->secLogin()).setCancelable(false).show();return;
+  }
+  android.widget.EditText input=new android.widget.EditText(this);input.setHint("Contraseña");input.setInputType(129);
+  new AlertDialog.Builder(this).setTitle(index==0?"SUPERADMINISTRADOR":secNames[index-1])
+   .setView(input).setCancelable(false).setNegativeButton("VOLVER",(d,w)->secLogin())
+   .setPositiveButton("INGRESAR",(d,w)->{
+    if(secCheck(user,input.getText().toString())){
+     securityUnlocked=true;securityOwner=index==0;safeBootHome();
+    }else{
+     new AlertDialog.Builder(this).setTitle("Contraseña incorrecta")
+      .setPositiveButton("REINTENTAR",(x,y)->secPassword(index)).setCancelable(false).show();
+    }
+   }).show();
+ }
+ void secAdminPanel(){
+  if(!securityOwner||!securityUnlocked){secGate();return;}
+  base("SUPERADMIN · USUARIOS");
+  for(int i=0;i<4;i++){
+   final int n=i+1;
+   mtAddLink("♙",secNames[i],secPrefs().contains("admin_"+n+"_hash")?"CAMBIAR CONTRASEÑA":"ACTIVAR ADMINISTRADOR",()->secSetAdmin(n));
+  }
+  mtAddLink("⇥","CERRAR SESIÓN","Bloquear el acceso",this::secGate);
+ }
+ void secSetAdmin(int index){
+  if(!securityOwner||!securityUnlocked){secGate();return;}
+  android.widget.EditText input=new android.widget.EditText(this);input.setInputType(129);
+  input.setHint("Nueva contraseña (mínimo 10 caracteres)");
+  new AlertDialog.Builder(this).setTitle(secNames[index-1]).setView(input)
+   .setNegativeButton("CANCELAR",null).setPositiveButton("GUARDAR",(d,w)->{
+    String pass=input.getText().toString();
+    if(pass.length()>=10)secSet("admin_"+index,pass);
+    secAdminPanel();
+   }).show();
+ }
+'''
+s=s.replace(mark,code+'\n'+mark,1)
+# Replace onCreate's initial safe launcher only.
+start=s.find('void onCreate(')
+assert start!=-1
+end=s.find(' void ',start+14)
+chunk=s[start:end]
+assert 'safeBootHome();' in chunk,"Startup location not found"
+chunk=chunk.replace('safeBootHome();','secGate();',1)
+s=s[:start]+chunk+s[end:]
+# Add owner-only access from the actual More menu entry point; other menus remain unchanged.
+needle='void moreMenu(){'
+assert needle in s
+s=s.replace(needle,needle+'if(securityOwner && securityUnlocked){secAdminPanel();return;}',1)
+p.write_text(s)
+print("Local login module applied")
