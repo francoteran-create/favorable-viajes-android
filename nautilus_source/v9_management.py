@@ -192,3 +192,5 @@ runpy.run_path(str(Path(__file__).with_name("v71_history_in_main_flow.py")),run_
 runpy.run_path(str(Path(__file__).with_name("v72_reports_calendar_raw.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v73_roster_payroll.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v74_shift_formulas.py")),run_name="__main__")
