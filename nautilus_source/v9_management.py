@@ -200,3 +200,5 @@ runpy.run_path(str(Path(__file__).with_name("v75_month_selector.py")),run_name="
 runpy.run_path(str(Path(__file__).with_name("v76_branded_hour_reports.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v77_jornada_tolerancia.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v78_home_month_stats.py")),run_name="__main__")
