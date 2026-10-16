@@ -61,6 +61,20 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.2'
+      - name: Set monotonic Android version
+        run: python3 nautilus_source/v85_version_code.py
+      - name: Install permanent signing key if configured
+        env:
+          NAUTILUS_DEBUG_KEYSTORE_B64: ${{ secrets.NAUTILUS_DEBUG_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$NAUTILUS_DEBUG_KEYSTORE_B64" ]; then
+            mkdir -p "$HOME/.android"
+            printf '%s' "$NAUTILUS_DEBUG_KEYSTORE_B64" | base64 -d > "$HOME/.android/debug.keystore"
+            chmod 600 "$HOME/.android/debug.keystore"
+            echo "Permanent Android signing key configured."
+          else
+            echo "::warning::No NAUTILUS_DEBUG_KEYSTORE_B64 secret. This build uses a temporary debug key and may not update older installations."
+          fi
       - name: Build debug APK
         run: cd "$PROJECT" && gradle :app:assembleDebug --stacktrace
       - name: Stage APK
