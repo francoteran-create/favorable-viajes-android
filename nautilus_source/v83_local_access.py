@@ -5,7 +5,7 @@ s=p.read_text()
 mark=' void dualClockHub(){'
 assert mark in s
 code=r'''
- boolean securityUnlocked=false, securityOwner=false;
+ boolean securityUnlocked=false, securityOwner=false, securityPromptOpen=false;
  android.content.SharedPreferences secPrefs(){return getSharedPreferences("nautilus_auth_v83",MODE_PRIVATE);}
  String secSalt(){byte[] b=new byte[16];new java.security.SecureRandom().nextBytes(b);return android.util.Base64.encodeToString(b,2);}
  String secHash(String pass,String salt){
@@ -15,7 +15,7 @@ code=r'''
   }catch(Exception ex){throw new RuntimeException(ex);}
  }
  void secSet(String user,String pass){
-  String salt=secSalt();secPrefs().edit().putString(user+"_salt",salt).putString(user+"_hash",secHash(pass,salt)).apply();
+  String salt=secSalt();if(!secPrefs().edit().putString(user+"_salt",salt).putString(user+"_hash",secHash(pass,salt)).commit())throw new RuntimeException("No se pudo guardar la contraseña");
  }
  boolean secCheck(String user,String pass){
   String salt=secPrefs().getString(user+"_salt",""),hash=secPrefs().getString(user+"_hash","");
@@ -25,11 +25,14 @@ code=r'''
  }
  String[] secNames={"David Ayub","Enzo Ahumada","Alejandro Diesel","Mario De Mingo"};
  void secGate(){
-  securityUnlocked=false;securityOwner=false;
+  if(securityUnlocked||securityPromptOpen)return;
+  securityPromptOpen=true;
+  securityOwner=false;
   if(!secPrefs().contains("owner_hash")){secEnroll();return;}
   secLogin();
  }
  void secEnroll(){
+  securityPromptOpen=true;
   android.widget.EditText a=new android.widget.EditText(this),b=new android.widget.EditText(this);
   a.setHint("Contraseña nueva");b.setHint("Repetir contraseña");
   a.setInputType(129);b.setInputType(129);
@@ -38,17 +41,19 @@ code=r'''
    .setMessage("Primer acceso local. Esta cuenta no vence. Guardá tu contraseña.")
    .setView(lay).setCancelable(false).setPositiveButton("ACTIVAR",(d,w)->{
     String pass=a.getText().toString();
-    if(pass.length()<10||!pass.equals(b.getText().toString())){secEnroll();return;}
-    secSet("owner",pass);securityUnlocked=true;securityOwner=true;secAdminPanel();
+    if(pass.length()<10||!pass.equals(b.getText().toString())){securityPromptOpen=false;new AlertDialog.Builder(this).setMessage("Las contraseñas deben coincidir y contener al menos 10 caracteres.").setPositiveButton("REINTENTAR",(x,y)->secGate()).show();return;}
+    secSet("owner",pass);securityUnlocked=true;securityOwner=true;securityPromptOpen=false;secAdminPanel();
    }).show();
  }
  void secLogin(){
+  securityPromptOpen=true;
   String[] names=new String[5];names[0]="SUPERADMINISTRADOR";
   for(int i=0;i<4;i++)names[i+1]=secNames[i];
   new AlertDialog.Builder(this).setTitle("NAUTILUS · INGRESAR")
    .setCancelable(false).setItems(names,(d,index)->secPassword(index)).show();
  }
  void secPassword(int index){
+  securityPromptOpen=true;
   String user=index==0?"owner":"admin_"+index;
   if(!secPrefs().contains(user+"_hash")){
    new AlertDialog.Builder(this).setTitle("Cuenta sin activar")
@@ -60,7 +65,7 @@ code=r'''
    .setView(input).setCancelable(false).setNegativeButton("VOLVER",(d,w)->secLogin())
    .setPositiveButton("INGRESAR",(d,w)->{
     if(secCheck(user,input.getText().toString())){
-     securityUnlocked=true;securityOwner=index==0;if(securityOwner)secAdminPanel();else safeBootHome();
+     securityUnlocked=true;securityOwner=index==0;securityPromptOpen=false;if(securityOwner)secAdminPanel();else safeBootHome();
     }else{
      new AlertDialog.Builder(this).setTitle("Contraseña incorrecta")
       .setPositiveButton("REINTENTAR",(x,y)->secPassword(index)).setCancelable(false).show();
@@ -75,7 +80,7 @@ code=r'''
    mtAddLink("♙",secNames[i],secPrefs().contains("admin_"+n+"_hash")?"CAMBIAR CONTRASEÑA":"ACTIVAR ADMINISTRADOR",()->secSetAdmin(n));
   }
   mtAddLink("▶","ENTRAR AL SISTEMA","Abrir Nautilus Presentismo",this::safeBootHome);
-  mtAddLink("⇥","CERRAR SESIÓN","Bloquear el acceso",this::secGate);
+  mtAddLink("⇥","CERRAR SESIÓN","Bloquear el acceso",()->{securityUnlocked=false;securityPromptOpen=false;secGate();});
  }
  void secSetAdmin(int index){
   if(!securityOwner||!securityUnlocked){secGate();return;}
