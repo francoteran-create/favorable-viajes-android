@@ -186,3 +186,5 @@ runpy.run_path(str(Path(__file__).with_name("v69_logs_android_parser.py")),run_n
 runpy.run_path(str(Path(__file__).with_name("v70_punch_history.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v71_diagnose_db.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v71_history_in_main_flow.py")),run_name="__main__")
