@@ -42,7 +42,7 @@ code=r'''
    .setView(lay).setCancelable(false).setPositiveButton("ACTIVAR",(d,w)->{
     String pass=a.getText().toString();
     if(!pass.matches("[0-9]{4,6}")||!pass.equals(b.getText().toString())){securityPromptOpen=false;new AlertDialog.Builder(this).setMessage("El PIN debe tener entre 4 y 6 números y coincidir.").setPositiveButton("REINTENTAR",(x,y)->secGate()).show();return;}
-    secSet("owner",pass);securityUnlocked=true;securityOwner=true;securityPromptOpen=false;secAdminPanel();
+    secSet("owner",pass);securityUnlocked=true;securityOwner=true;securityPromptOpen=false;secPrefs().edit().putBoolean("owner_pin",true).apply();secAdminPanel();
    }).show();
  }
  void secLogin(){
@@ -60,7 +60,9 @@ code=r'''
     .setMessage("El superadministrador debe asignar la contraseña de esta cuenta.")
     .setPositiveButton("VOLVER",(d,w)->secLogin()).setCancelable(false).show();return;
   }
-  android.widget.EditText input=new android.widget.EditText(this);input.setHint("Contraseña");input.setInputType(129);
+  if(secPrefs().getBoolean("skip_"+user,false)){securityUnlocked=true;securityOwner=index==0;securityPromptOpen=false;if(index==0&&!secPrefs().getBoolean("owner_pin",false))secOwnerPin();else if(securityOwner)secAdminPanel();else safeBootHome();return;}
+  android.widget.EditText input=new android.widget.EditText(this);input.setHint("PIN numérico");input.setInputType(18);
+  if(index==0&&!secPrefs().getBoolean("owner_pin",false)){input.setHint("Contraseña anterior");input.setInputType(129);}
   new AlertDialog.Builder(this).setTitle(index==0?"SUPERADMINISTRADOR":secNames[index-1])
    .setView(input).setCancelable(false).setNegativeButton("VOLVER",(d,w)->secLogin())
    .setPositiveButton("INGRESAR",(d,w)->{
@@ -79,6 +81,7 @@ code=r'''
    final int n=i+1;
    mtAddLink("♙",secNames[i],secPrefs().contains("admin_"+n+"_hash")?"CAMBIAR CONTRASEÑA":"ACTIVAR ADMINISTRADOR",()->secSetAdmin(n));
   }
+  mtAddLink("♧",secPrefs().getBoolean("skip_owner",false)?"DESACTIVAR ENTRADA DIRECTA":"ENTRAR SIN CONTRASEÑA","Recordar esta decisión en este teléfono",()->{boolean old=secPrefs().getBoolean("skip_owner",false);secPrefs().edit().putBoolean("skip_owner",!old).apply();secAdminPanel();});
   mtAddLink("▶","ENTRAR AL SISTEMA","Abrir Nautilus Presentismo",this::safeBootHome);
   mtAddLink("⇥","CERRAR SESIÓN","Bloquear el acceso",()->{securityUnlocked=false;securityPromptOpen=false;secGate();});
  }
