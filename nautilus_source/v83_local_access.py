@@ -34,14 +34,14 @@ code=r'''
  void secEnroll(){
   securityPromptOpen=true;
   android.widget.EditText a=new android.widget.EditText(this),b=new android.widget.EditText(this);
-  a.setHint("Contraseña nueva");b.setHint("Repetir contraseña");
-  a.setInputType(129);b.setInputType(129);
+  a.setHint("PIN nuevo (4 a 6 números)");b.setHint("Repetir PIN");
+  a.setInputType(18);b.setInputType(18);
   LinearLayout lay=new LinearLayout(this);lay.setOrientation(1);lay.setPadding(20,12,20,12);lay.addView(a);lay.addView(b);
   new AlertDialog.Builder(this).setTitle("CREAR SUPERADMINISTRADOR")
    .setMessage("Primer acceso local. Esta cuenta no vence. Guardá tu contraseña.")
    .setView(lay).setCancelable(false).setPositiveButton("ACTIVAR",(d,w)->{
     String pass=a.getText().toString();
-    if(pass.length()<10||!pass.equals(b.getText().toString())){securityPromptOpen=false;new AlertDialog.Builder(this).setMessage("Las contraseñas deben coincidir y contener al menos 10 caracteres.").setPositiveButton("REINTENTAR",(x,y)->secGate()).show();return;}
+    if(!pass.matches("[0-9]{4,6}")||!pass.equals(b.getText().toString())){securityPromptOpen=false;new AlertDialog.Builder(this).setMessage("El PIN debe tener entre 4 y 6 números y coincidir.").setPositiveButton("REINTENTAR",(x,y)->secGate()).show();return;}
     secSet("owner",pass);securityUnlocked=true;securityOwner=true;securityPromptOpen=false;secAdminPanel();
    }).show();
  }
