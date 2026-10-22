@@ -77,6 +77,8 @@ jobs:
           fi
       - name: Build debug APK
         run: cd "$PROJECT" && gradle :app:assembleDebug --stacktrace
+      - name: Verify obfuscated release build
+        run: cd "$PROJECT" && gradle :app:assembleRelease --stacktrace
       - name: Stage APK
         run: |
           mkdir -p out
