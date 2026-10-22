@@ -8,6 +8,7 @@ if "minifyEnabled true" not in s:
  marker="android {"
  assert marker in s
  s=s.replace(marker,'''android {
+    lint { disable 'ExpiredTargetSdkVersion' }
     buildTypes {
         release {
             minifyEnabled true
