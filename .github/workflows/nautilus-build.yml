@@ -131,18 +131,13 @@ jobs:
           APKSIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -1)"
           test -n "$APKSIGNER"
           "$APKSIGNER" verify --verbose "$APK"
-      - name: Stage APK
+      - name: Sign and verify obfuscated release APK (owner signing key only)
         env:
-          NAUTILUS_DEBUG_KEYSTORE_B64: ${{ secrets.NAUTILUS_DEBUG_KEYSTORE_B64 }}
-        run: |
-          mkdir -p out
-          if [ -z "$NAUTILUS_DEBUG_KEYSTORE_B64" ]; then
-            echo "::warning::No distributable APK without persistent signing."
-            exit 0
-          fi
-          cp "$PROJECT/app/build/outputs/apk/debug/app-debug.apk" out/Nautilus-Presentismo-MASTER.apk
-      - uses: actions/upload-artifact@v4
+          NAUTILUS_RELEASE_SIGNING_BUNDLE: ${{ secrets.NAUTILUS_RELEASE_SIGNING_BUNDLE }}
+        run: python3 nautilus_source/ci_sign_release.py
+      - name: Upload ONLY persistent-key signed release
+        uses: actions/upload-artifact@v4
         with:
-          name: NAUTILUS-PRESENTISMO-MASTER-APK
-          path: out/Nautilus-Presentismo-MASTER.apk
+          name: NAUTILUS-MASTER-RELEASE-FIRMADA
+          path: out/Nautilus-Presentismo-MASTER-FIRMADA.apk
           if-no-files-found: ignore
