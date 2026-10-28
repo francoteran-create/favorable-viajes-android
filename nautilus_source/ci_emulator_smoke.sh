@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-APK="${PROJECT}/app/build/outputs/apk/debug/app-debug.apk"
+APK="${SMOKE_APK:-${PROJECT}/app/build/outputs/apk/debug/app-debug.apk}"
 PKG="ar.com.nautiluscountry.presentismo"
 mkdir -p out/smoke
 test -s "$APK"
