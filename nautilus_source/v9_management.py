@@ -225,3 +225,4 @@ runpy.run_path(str(Path(__file__).with_name("v96_license_generator_guard.py")),r
 runpy.run_path(str(Path(__file__).with_name("v97_license_input.py")),run_name="__main__")
 runpy.run_path(str(Path(__file__).with_name("v98_license_status.py")),run_name="__main__")
 runpy.run_path(str(Path(__file__).with_name("v99_encrypted_owner_key.py")),run_name="__main__")
+runpy.run_path(str(Path(__file__).with_name('v100_roles.py')),run_name='__main__')
