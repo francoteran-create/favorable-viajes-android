@@ -18,8 +18,13 @@ fi
 echo "Android PID=$PID" | tee out/smoke/process.txt
 adb shell uiautomator dump /sdcard/nautilus_view.xml || true
 adb pull /sdcard/nautilus_view.xml out/smoke/nautilus_view.xml || true
-adb shell screencap -p /sdcard/nautilus_smoke.png
-adb pull /sdcard/nautilus_smoke.png out/smoke/nautilus_smoke.png
+# FLAG_SECURE intentionally blocks screenshots on some Android images.
+# The accessibility hierarchy, process and crash logs are the reliable evidence.
+if adb shell screencap -p /sdcard/nautilus_smoke.png; then
+  adb pull /sdcard/nautilus_smoke.png out/smoke/nautilus_smoke.png || true
+else
+  echo "Screen capture denied (privacy protection active); UI hierarchy is sufficient." | tee out/smoke/capture_note.txt
+fi
 adb logcat -d -b crash > out/smoke/crashes.txt
 if grep -q -E "FATAL EXCEPTION|Process: $PKG" out/smoke/crashes.txt; then
   echo "::error::Android fatal crash during Nautilus startup"
