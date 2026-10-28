@@ -95,6 +95,8 @@ jobs:
         run: cd "$PROJECT" && gradle :app:assembleDebug --stacktrace
       - name: Verify obfuscated release build
         run: cd "$PROJECT" && gradle :app:assembleRelease --stacktrace
+      - name: Sign a real obfuscated release with a throwaway CI certificate
+        run: python3 nautilus_source/ci_release_signing_selftest.py
       - name: Enable KVM for Android emulator
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -107,7 +109,7 @@ jobs:
           arch: x86_64
           target: google_apis
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
-          script: bash nautilus_source/ci_emulator_smoke.sh
+          script: SMOKE_APK="$RUNNER_TEMP/nautilus-smoke-signed-release.apk" bash nautilus_source/ci_emulator_smoke.sh
       - name: Upload device smoke evidence
         if: always()
         uses: actions/upload-artifact@v4
