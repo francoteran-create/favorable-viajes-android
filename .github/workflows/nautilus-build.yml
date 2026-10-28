@@ -87,10 +87,17 @@ jobs:
       - name: Verify obfuscated release build
         run: cd "$PROJECT" && gradle :app:assembleRelease --stacktrace
       - name: Stage APK
+        env:
+          NAUTILUS_DEBUG_KEYSTORE_B64: ${{ secrets.NAUTILUS_DEBUG_KEYSTORE_B64 }}
         run: |
           mkdir -p out
-          cp "$PROJECT/app/build/outputs/apk/debug/app-debug.apk" out/Nautilus-Presentismo-V82-MASTER.apk
+          if [ -z "$NAUTILUS_DEBUG_KEYSTORE_B64" ]; then
+            echo "::warning::No distributable APK without persistent signing."
+            exit 0
+          fi
+          cp "$PROJECT/app/build/outputs/apk/debug/app-debug.apk" out/Nautilus-Presentismo-MASTER.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: NAUTILUS-PRESENTISMO-V82-MASTER-APK
-          path: out/Nautilus-Presentismo-V82-MASTER.apk
+          name: NAUTILUS-PRESENTISMO-MASTER-APK
+          path: out/Nautilus-Presentismo-MASTER.apk
+          if-no-files-found: ignore
