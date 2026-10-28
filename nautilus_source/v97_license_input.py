@@ -14,7 +14,7 @@ s=s.replace(needle,'''.setMessage("El período inicial o la renovación de tres 
 # Prevent the application from accepting an empty/pasted newline-only string.
 needle='''String[] p=raw.trim().split("[.]");if(p.length!=2)return false;'''
 assert needle in s
-s=s.replace(needle,'''String cleaned=raw.trim().replaceAll("\\s+","");
+s=s.replace(needle,'''String cleaned=raw.trim().replaceAll("\\\\s+","");
    if(cleaned.length()<60||cleaned.length()>2048)return false;
    String[] p=cleaned.split("[.]");if(p.length!=2)return false;''',1)
 p.write_text(s)
