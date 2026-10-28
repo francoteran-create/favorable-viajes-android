@@ -223,3 +223,4 @@ runpy.run_path(str(Path(__file__).with_name("v94_developer_bootstrap.py")),run_n
 runpy.run_path(str(Path(__file__).with_name("v95_developer_failclosed.py")),run_name="__main__")
 runpy.run_path(str(Path(__file__).with_name("v96_license_generator_guard.py")),run_name="__main__")
 runpy.run_path(str(Path(__file__).with_name("v97_license_input.py")),run_name="__main__")
+runpy.run_path(str(Path(__file__).with_name("v98_license_status.py")),run_name="__main__")
