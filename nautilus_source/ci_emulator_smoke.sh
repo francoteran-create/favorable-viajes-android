@@ -38,16 +38,20 @@ fi
 for user in "DESARROLLADOR" "David Ayub" "Enzo Ahumada" "Alejandro Diesel" "Mario De Mingo"; do
   grep -F -q "$user" out/smoke/nautilus_view.xml
 done
-COORDS="$(python3 nautilus_source/ci_android_tap.py out/smoke/nautilus_view.xml "David Ayub")"
-adb shell input tap $COORDS
-sleep 2
-adb shell uiautomator dump /sdcard/nautilus_admin.xml
-adb pull /sdcard/nautilus_admin.xml out/smoke/nautilus_admin.xml
-grep -F -q "PRIMER INGRESO" out/smoke/nautilus_admin.xml
-grep -F -q "David Ayub" out/smoke/nautilus_admin.xml
-COORDS="$(python3 nautilus_source/ci_android_tap.py out/smoke/nautilus_admin.xml "VOLVER")"
-adb shell input tap $COORDS
-sleep 2
+for account in "David Ayub" "Enzo Ahumada" "Alejandro Diesel" "Mario De Mingo"; do
+  adb shell uiautomator dump /sdcard/nautilus_accounts.xml
+  adb pull /sdcard/nautilus_accounts.xml out/smoke/nautilus_accounts.xml
+  COORDS="$(python3 nautilus_source/ci_android_tap.py out/smoke/nautilus_accounts.xml "$account")"
+  adb shell input tap $COORDS
+  sleep 1
+  adb shell uiautomator dump /sdcard/nautilus_admin.xml
+  adb pull /sdcard/nautilus_admin.xml out/smoke/nautilus_admin.xml
+  grep -F -q "PRIMER INGRESO" out/smoke/nautilus_admin.xml
+  grep -F -q "$account" out/smoke/nautilus_admin.xml
+  COORDS="$(python3 nautilus_source/ci_android_tap.py out/smoke/nautilus_admin.xml "VOLVER")"
+  adb shell input tap $COORDS
+  sleep 1
+done
 adb shell uiautomator dump /sdcard/nautilus_return.xml
 adb pull /sdcard/nautilus_return.xml out/smoke/nautilus_return.xml
 COORDS="$(python3 nautilus_source/ci_android_tap.py out/smoke/nautilus_return.xml "DESARROLLADOR")"
