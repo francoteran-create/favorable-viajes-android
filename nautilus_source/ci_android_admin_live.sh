@@ -31,15 +31,20 @@ dump ready_to_create_pin
 tap ready_to_create_pin "CREAR"
 sleep 4
 dump admin_main_live
-if ! grep -F -q "CAMBIAR DE USUARIO" out/smoke/admin_main_live.xml; then
-  echo "::error::Account creation did not reach the presentismo home with change-user action"
+grep -F -q "IMPORTAR DATOS" out/smoke/admin_main_live.xml
+grep -F -q "INFORMES" out/smoke/admin_main_live.xml
+tap admin_main_live "CONFIGURACIÓN"
+sleep 2
+dump admin_configuration_live
+if ! grep -F -q "CAMBIAR DE USUARIO" out/smoke/admin_configuration_live.xml; then
+  echo "::error::The configuration menu does not expose account switching"
   exit 1
 fi
-if grep -F -q "VOLVER AL PANEL DESARROLLADOR" out/smoke/admin_main_live.xml; then
+if grep -F -q "VOLVER AL PANEL DESARROLLADOR" out/smoke/admin_configuration_live.xml; then
   echo "::error::Administrator was shown the exclusive owner panel shortcut"
   exit 1
 fi
-tap admin_main_live "CAMBIAR DE USUARIO"
+tap admin_configuration_live "CAMBIAR DE USUARIO"
 sleep 2
 dump after_switch_live
 grep -F -q "DESARROLLADOR" out/smoke/after_switch_live.xml
