@@ -25,7 +25,7 @@ apks=glob.glob(str(project/"app/build/outputs/apk/release/*-unsigned.apk"))
 assert len(apks)==1, "Expected one unsigned obfuscated release APK"
 buildtools=sorted(glob.glob(str(Path(os.environ["ANDROID_HOME"])/"build-tools/*/apksigner")))
 assert buildtools, "Android apksigner is missing"
-out=Path("out/Nautilus-Presentismo-MASTER-FIRMADA.apk")
+out=Path(os.getenv("NAUTILUS_SIGNED_OUTPUT","out/Nautilus-Presentismo-MASTER-FIRMADA.apk"))
 out.parent.mkdir(parents=True,exist_ok=True)
 with tempfile.TemporaryDirectory(prefix="nautilus-sign-") as temp:
     key=Path(temp)/"release.p12"
