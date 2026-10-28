@@ -228,3 +228,4 @@ runpy.run_path(str(Path(__file__).with_name("v99_encrypted_owner_key.py")),run_n
 runpy.run_path(str(Path(__file__).with_name('v100_roles.py')),run_name='__main__')
 runpy.run_path(str(Path(__file__).with_name('v101_owner_onboarding.py')),run_name='__main__')
 runpy.run_path(str(Path(__file__).with_name('v102_license_diagnostics.py')),run_name='__main__')
+runpy.run_path(str(Path(__file__).with_name('v103_owner_paste.py')),run_name='__main__')
