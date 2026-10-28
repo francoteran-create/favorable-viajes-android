@@ -86,6 +86,22 @@ jobs:
         run: cd "$PROJECT" && gradle :app:assembleDebug --stacktrace
       - name: Verify obfuscated release build
         run: cd "$PROJECT" && gradle :app:assembleRelease --stacktrace
+      - name: Verify APK signature and stable signing material
+        env:
+          NAUTILUS_DEBUG_KEYSTORE_B64: ${{ secrets.NAUTILUS_DEBUG_KEYSTORE_B64 }}
+        run: |
+          APK="$PROJECT/app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          if [ -n "$NAUTILUS_DEBUG_KEYSTORE_B64" ]; then
+            test -s "$HOME/.android/debug.keystore"
+            keytool -list -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey >/dev/null
+            echo "Configured signing keystore validated."
+          else
+            echo "::warning::Build only for testing: stable signing secret is not configured."
+          fi
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -1)"
+          test -n "$APKSIGNER"
+          "$APKSIGNER" verify --verbose "$APK"
       - name: Stage APK
         env:
           NAUTILUS_DEBUG_KEYSTORE_B64: ${{ secrets.NAUTILUS_DEBUG_KEYSTORE_B64 }}
