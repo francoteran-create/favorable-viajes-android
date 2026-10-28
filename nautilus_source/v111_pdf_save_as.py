@@ -40,5 +40,9 @@ handler=f'''if({q}==SAVE_MONTHLY_PDF){{
    return;
   }}'''
 s=s[:m.end()]+handler+s[m.end():]
+s=s.replace('toast("No se pudo generar PDF: "+e.getMessage());','android.widget.Toast.makeText(this,"No se pudo generar PDF: "+e.getMessage(),android.widget.Toast.LENGTH_LONG).show();',1)
+s=s.replace('toast("El PDF se conserva dentro de Nautilus. Podés volver a generarlo para exportarlo.");','android.widget.Toast.makeText(this,"El PDF se conserva dentro de Nautilus. Podés volver a generarlo para exportarlo.",android.widget.Toast.LENGTH_LONG).show();',1)
+assert 'toast("No se pudo generar PDF' not in s
+assert 'toast("El PDF se conserva' not in s
 p.write_text(s)
 print("V111: monthly PDF uses Android Save As document picker and copies the exact generated PDF to chosen folder")
