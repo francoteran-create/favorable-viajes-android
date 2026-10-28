@@ -25,5 +25,9 @@ s=s.replace(needle,'''  return now<until;
 needle='''  new AlertDialog.Builder(this).setTitle("LICENCIA VENCIDA")'''
 assert needle in s
 s=s.replace(needle,'''  new AlertDialog.Builder(this).setTitle("LICENCIA VENCIDA")''',1)
+needle='''.setView(input).setCancelable(false).setNegativeButton("VOLVER",(d,w)->secLogin())'''
+assert needle in s
+s=s.replace(needle,'''.setMessage(index==0?"Acceso permanente del DESARROLLADOR":licStatus())
+   .setView(input).setCancelable(false).setNegativeButton("VOLVER",(d,w)->secLogin())''',1)
 p.write_text(s)
 print("V98 license validation and expiry status helper")
