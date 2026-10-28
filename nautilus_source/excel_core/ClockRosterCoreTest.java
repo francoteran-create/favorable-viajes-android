@@ -37,7 +37,7 @@ public class ClockRosterCoreTest {
       "duplicate employee latest row wins");
     check(parse(head+row("Not a personnel row")+
       row("ID.: 11 Name: Julia Dept.Name: Administración")+tail).size()==1,"ignore headings");
-    check(parse("  "+head+row("ID.: 21 Name: Juan Dept.Name: Seguridad")+tail).size()==1,
+    check(parse("  "+head.replace("<?xml version=\"1.0\"?>","")+row("ID.: 21 Name: Juan Dept.Name: Seguridad")+tail).size()==1,
       "leading whitespace");
     check(parse("\uFEFF"+head+row("ID.: 21 Name: Juan Dept.Name: Seguridad")+tail).size()==1,
       "UTF8 BOM");
