@@ -34,4 +34,31 @@ if ! grep -E -q "DESARROLLADOR|NAUTILUS|David Ayub|Enzo Ahumada" out/smoke/nauti
   echo "::error::Expected Nautilus entry UI was not observed"
   exit 1
 fi
-echo "PASS: APK installed, MainActivity alive, entry UI visible, no fatal crash" | tee out/smoke/summary.txt
+# Exercise the real initial enrollment screens without creating any production PINs.
+for user in "DESARROLLADOR" "David Ayub" "Enzo Ahumada" "Alejandro Diesel" "Mario De Mingo"; do
+  grep -F -q "$user" out/smoke/nautilus_view.xml
+done
+COORDS="$(python3 nautilus_source/ci_android_tap.py out/smoke/nautilus_view.xml "David Ayub")"
+adb shell input tap $COORDS
+sleep 2
+adb shell uiautomator dump /sdcard/nautilus_admin.xml
+adb pull /sdcard/nautilus_admin.xml out/smoke/nautilus_admin.xml
+grep -F -q "PRIMER INGRESO" out/smoke/nautilus_admin.xml
+grep -F -q "David Ayub" out/smoke/nautilus_admin.xml
+COORDS="$(python3 nautilus_source/ci_android_tap.py out/smoke/nautilus_admin.xml "VOLVER")"
+adb shell input tap $COORDS
+sleep 2
+adb shell uiautomator dump /sdcard/nautilus_return.xml
+adb pull /sdcard/nautilus_return.xml out/smoke/nautilus_return.xml
+COORDS="$(python3 nautilus_source/ci_android_tap.py out/smoke/nautilus_return.xml "DESARROLLADOR")"
+adb shell input tap $COORDS
+sleep 2
+adb shell uiautomator dump /sdcard/nautilus_owner.xml
+adb pull /sdcard/nautilus_owner.xml out/smoke/nautilus_owner.xml
+grep -E -q "CONFIGURACIÓN INICIAL|ACTIVAR DESARROLLADOR" out/smoke/nautilus_owner.xml
+adb logcat -d -b crash > out/smoke/crashes.txt
+if grep -F -q "Process: $PKG" out/smoke/crashes.txt; then
+  echo "::error::App crashed during account role navigation"
+  exit 1
+fi
+echo "PASS: Signed release installed and launched on Android; all 5 accounts visible; admin first-PIN and owner provisioning separated; no crash" | tee out/smoke/summary.txt
