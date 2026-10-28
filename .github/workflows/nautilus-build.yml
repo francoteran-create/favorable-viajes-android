@@ -68,6 +68,11 @@ jobs:
           mkdir -p /tmp/nautilus-clock-tests
           javac -d /tmp/nautilus-clock-tests nautilus_source/excel_core/ClockRosterCore.java nautilus_source/excel_core/ClockRosterCoreTest.java
           java -cp /tmp/nautilus-clock-tests ar.com.nautiluscountry.presentismo.ClockRosterCoreTest
+      - name: Test biometric clock punch import timestamps and invalid files
+        run: |
+          mkdir -p /tmp/nautilus-punch-tests
+          javac -d /tmp/nautilus-punch-tests nautilus_source/excel_core/ClockPunchCore.java nautilus_source/excel_core/ClockPunchCoreTest.java
+          java -cp /tmp/nautilus-punch-tests ar.com.nautiluscountry.presentismo.ClockPunchCoreTest
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.2'
