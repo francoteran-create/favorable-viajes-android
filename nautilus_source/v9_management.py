@@ -220,3 +220,4 @@ runpy.run_path(str(Path(__file__).with_name("v91_release_hardening.py")),run_nam
 runpy.run_path(str(Path(__file__).with_name("v92_clock_check.py")),run_name="__main__")
 runpy.run_path(str(Path(__file__).with_name("v93_license_gate.py")),run_name="__main__")
 runpy.run_path(str(Path(__file__).with_name("v94_developer_bootstrap.py")),run_name="__main__")
+runpy.run_path(str(Path(__file__).with_name("v95_developer_failclosed.py")),run_name="__main__")
