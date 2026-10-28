@@ -58,6 +58,11 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      - name: Test offline license crypto and expiry using isolated RSA test keys
+        run: |
+          mkdir -p /tmp/nautilus-license-tests
+          javac -d /tmp/nautilus-license-tests nautilus_source/license_core/OfflineLicenseCore.java nautilus_source/license_core/OfflineLicenseCoreTest.java
+          java -cp /tmp/nautilus-license-tests ar.com.nautiluscountry.presentismo.OfflineLicenseCoreTest
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.2'
