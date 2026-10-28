@@ -221,3 +221,4 @@ runpy.run_path(str(Path(__file__).with_name("v92_clock_check.py")),run_name="__m
 runpy.run_path(str(Path(__file__).with_name("v93_license_gate.py")),run_name="__main__")
 runpy.run_path(str(Path(__file__).with_name("v94_developer_bootstrap.py")),run_name="__main__")
 runpy.run_path(str(Path(__file__).with_name("v95_developer_failclosed.py")),run_name="__main__")
+runpy.run_path(str(Path(__file__).with_name("v96_license_generator_guard.py")),run_name="__main__")
