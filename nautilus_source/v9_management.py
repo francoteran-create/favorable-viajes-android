@@ -232,3 +232,4 @@ runpy.run_path(str(Path(__file__).with_name('v103_owner_paste.py')),run_name='__
 runpy.run_path(str(Path(__file__).with_name('v104_owner_keypair.py')),run_name='__main__')
 runpy.run_path(str(Path(__file__).with_name('v105_return_developer.py')),run_name='__main__')
 runpy.run_path(str(Path(__file__).with_name('v106_switch_user.py')),run_name='__main__')
+runpy.run_path(str(Path(__file__).with_name('v107_account_session.py')),run_name='__main__')
