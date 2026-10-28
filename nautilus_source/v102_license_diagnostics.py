@@ -4,7 +4,7 @@ p=Path(os.environ["PROJECT"])/"app/src/main/java/ar/com/nautiluscountry/presenti
 s=p.read_text()
 anchor='''  mtAddLink("▶","ENTRAR AL SISTEMA"'''
 assert anchor in s
-new='''  mtAddLink("▣","ESTADO DE LICENCIAS","Verificar fecha, vigencia y generador",()->{
+new=r'''  mtAddLink("▣","ESTADO DE LICENCIAS","Verificar fecha, vigencia y generador",()->{
    if(!securityOwner||!securityUnlocked||!licDeveloperAuthorized()){securityUnlocked=false;securityOwner=false;securityPromptOpen=false;secGate();return;}
    new AlertDialog.Builder(this).setTitle("CONTROL DE LICENCIAS")
     .setMessage(licStatus()+"\\nGenerador: AUTORIZADO\\nCódigos: válidos solo en la fecha de emisión\\nRenovación: tres meses desde la activación")
