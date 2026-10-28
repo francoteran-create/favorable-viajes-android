@@ -63,6 +63,11 @@ jobs:
           mkdir -p /tmp/nautilus-license-tests
           javac -d /tmp/nautilus-license-tests nautilus_source/license_core/OfflineLicenseCore.java nautilus_source/license_core/OfflineLicenseCoreTest.java
           java -cp /tmp/nautilus-license-tests ar.com.nautiluscountry.presentismo.OfflineLicenseCoreTest
+      - name: Test real clock Excel roster imports and hostile input
+        run: |
+          mkdir -p /tmp/nautilus-clock-tests
+          javac -d /tmp/nautilus-clock-tests nautilus_source/excel_core/ClockRosterCore.java nautilus_source/excel_core/ClockRosterCoreTest.java
+          java -cp /tmp/nautilus-clock-tests ar.com.nautiluscountry.presentismo.ClockRosterCoreTest
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.2'
