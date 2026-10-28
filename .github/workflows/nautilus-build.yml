@@ -82,6 +82,15 @@ jobs:
           if [ -z "$NAUTILUS_DEBUG_KEYSTORE_B64" ]; then
             echo "::warning::NO DISTRIBUIR: la APK debug está firmada con una clave temporal. Configurar el secreto de firma antes de la MASTER."
           fi
+      - name: Check stable signing key matches Android debug signing requirements
+        env:
+          NAUTILUS_DEBUG_KEYSTORE_B64: ${{ secrets.NAUTILUS_DEBUG_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$NAUTILUS_DEBUG_KEYSTORE_B64" ]; then
+            keytool -list -v -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey | grep -E 'Alias name:|SHA256:' | head -2
+          else
+            echo "::notice::Pilot-only build. Stable signing is a release blocker."
+          fi
       - name: Build debug APK
         run: cd "$PROJECT" && gradle :app:assembleDebug --stacktrace
       - name: Verify obfuscated release build
