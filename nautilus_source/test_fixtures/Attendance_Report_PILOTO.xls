@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Sheet1"><Table><Row><Cell><Data ss:Type="String">ID.: 9001 Name: Ada Prueba Dept.Name: Seguridad</Data></Cell></Row><Row><Cell><Data ss:Type="String">ID.: 9002 Name: Beto Prueba Dept.Name: Mantenimiento</Data></Cell></Row></Table></Worksheet></Workbook>
