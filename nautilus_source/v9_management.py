@@ -238,3 +238,4 @@ runpy.run_path(str(Path(__file__).with_name("v109_roster_import_core.py")),run_n
 runpy.run_path(str(Path(__file__).with_name("v110_monthly_pdf_correct.py")),run_name="__main__")
 runpy.run_path(str(Path(__file__).with_name("v111_pdf_save_as.py")),run_name="__main__")
 runpy.run_path(str(Path(__file__).with_name("v112_account_access_menu.py")),run_name="__main__")
+runpy.run_path(str(Path(__file__).with_name("v113_punch_import_core.py")),run_name="__main__")
