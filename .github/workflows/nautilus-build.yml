@@ -75,6 +75,13 @@ jobs:
           else
             echo "::warning::No NAUTILUS_DEBUG_KEYSTORE_B64 secret. This build uses a temporary debug key and may not update older installations."
           fi
+      - name: Require stable signing for distributable builds
+        env:
+          NAUTILUS_DEBUG_KEYSTORE_B64: ${{ secrets.NAUTILUS_DEBUG_KEYSTORE_B64 }}
+        run: |
+          if [ -z "$NAUTILUS_DEBUG_KEYSTORE_B64" ]; then
+            echo "::warning::NO DISTRIBUIR: la APK debug está firmada con una clave temporal. Configurar el secreto de firma antes de la MASTER."
+          fi
       - name: Build debug APK
         run: cd "$PROJECT" && gradle :app:assembleDebug --stacktrace
       - name: Verify obfuscated release build
