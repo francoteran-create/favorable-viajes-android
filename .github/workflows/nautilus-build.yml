@@ -54,6 +54,8 @@ jobs:
         run: python3 nautilus_source/v9_management.py
       - name: Apply V9 engine compatibility
         run: python3 nautilus_source/v9_compat.py
+      - name: Audit reconstructed app privacy configuration
+        run: python3 nautilus_source/ci_security_manifest_test.py
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
