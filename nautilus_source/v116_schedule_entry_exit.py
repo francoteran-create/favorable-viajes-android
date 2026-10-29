@@ -13,7 +13,12 @@ new='''   String scheduledLabel=start.equals("FRANCO")?"FRANCO · "+regime:
    final String status=count==0?"SIN FICHADAS IMPORTADAS":
      count==1?"UNA FICHADA "+first+" · REVISAR ENTRADA/SALIDA":
      "PRIMERA FICHADA "+first+"  |  ULTIMA FICHADA "+last+"  ("+count+" marcas)";
-   mtAddLink("▣",day+" · "+scheduledLabel,status,()->rsEditDay(pid,day));'''
+   LinearLayout dayPanel=mtPanel();
+   dayPanel.addView(mtText(day,14,Color.WHITE,true));
+   dayPanel.addView(mtText(scheduledLabel,12,mtGold(),true));
+   dayPanel.addView(mtText(status,12,mtPale(),false));
+   dayPanel.setOnClickListener(v->rsEditDay(pid,day));
+   body.addView(dayPanel);'''
 assert old in s, "V116: scheduled-day UI anchor not found; inspect latest master, do not silently skip"
 s=s.replace(old,new,1)
 p.write_text(s)
