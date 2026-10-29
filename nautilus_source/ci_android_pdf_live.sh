@@ -13,8 +13,8 @@ grep -F -q "PDF MENSUAL" out/smoke/reports_pdf_entry.xml
 click reports_pdf_entry "PDF MENSUAL"
 sleep 2
 snap select_pdf_month
-grep -F -q "OCTUBRE 2026" out/smoke/select_pdf_month.xml
-click select_pdf_month "OCTUBRE 2026"
+grep -F -q "MES ACTUAL" out/smoke/select_pdf_month.xml
+click select_pdf_month "MES ACTUAL"
 sleep 3
 snap system_pdf_picker
 grep -F -q "Nautilus-Mensual-2026-10" out/smoke/system_pdf_picker.xml
