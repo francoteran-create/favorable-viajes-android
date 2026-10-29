@@ -1,0 +1,91 @@
+name: Nautilus Official Release - Owner Signed
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/nautilus-owner-release-main.yml'
+  workflow_dispatch:
+jobs:
+  signed-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: nautilus-presentismo
+      - name: Reconstruct Android project
+        shell: bash
+        run: |
+          cat nautilus_source/chunk_* > /tmp/nautilus-source.b64
+          base64 -d /tmp/nautilus-source.b64 > /tmp/nautilus-release.zip
+          mkdir -p /tmp/nautilus-release
+          unzip -q /tmp/nautilus-release.zip -d /tmp/nautilus-release
+          echo "PROJECT=$(find /tmp/nautilus-release -mindepth 1 -maxdepth 1 -type d | head -1)" >> "$GITHUB_ENV"
+      - name: Complete diagnostic punch helper
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          p=Path(os.environ["PROJECT"])/"app/src/main/java/ar/com/nautiluscountry/presentismo/MainActivity.java"
+          s=p.read_text()
+          helper="""
+           ArrayList<Date> punchesForWorkday(String pid,String day,String st,String et){
+            ArrayList<Date> out=new ArrayList<>();
+            try{
+             SimpleDateFormat df=new SimpleDateFormat("yyyy-MM-dd HH:mm",Locale.US);
+             Date a=df.parse(day+" "+st),b=df.parse(day+" "+et);
+             if(!b.after(a))b=new Date(b.getTime()+86400000L);
+             SimpleDateFormat iso=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",Locale.US);
+             String from=iso.format(new Date(a.getTime()-14400000L));
+             String to=iso.format(new Date(b.getTime()+14400000L));
+             Cursor c=db.getReadableDatabase().rawQuery("SELECT stamp FROM punches WHERE person_id=? AND stamp>=? AND stamp<=? ORDER BY stamp",new String[]{pid,from,to});
+             while(c.moveToNext()){try{out.add(iso.parse(c.getString(0).substring(0,19)));}catch(Exception ignored){}}
+             c.close();
+            }catch(Exception ignored){}
+            return out;
+           }
+          """
+          assert " static class DayResult{" in s
+          p.write_text(s.replace(" static class DayResult{",helper+"\n static class DayResult{"))
+          PY
+      - name: Apply accumulated Nautilus updates
+        run: |
+          python3 nautilus_source/apply_v75_visual.py
+          python3 nautilus_source/apply_v80_stats_exit.py
+          python3 nautilus_source/apply_v85_management.py
+          python3 nautilus_source/v9_profiles.py
+          python3 nautilus_source/v9_management.py
+          python3 nautilus_source/v9_compat.py
+          python3 nautilus_source/ci_security_manifest_test.py
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.2'
+      - name: Set version
+        run: python3 nautilus_source/v85_version_code.py
+      - name: Build protected release
+        run: cd "$PROJECT" && gradle :app:assembleRelease --stacktrace
+      - name: Sign release with owner secret
+        env:
+          NAUTILUS_RELEASE_SIGNING_BUNDLE: ${{ secrets.NAUTILUS_RELEASE_SIGNING_BUNDLE }}
+        run: |
+          test -n "$NAUTILUS_RELEASE_SIGNING_BUNDLE" || { echo "::error::Missing signing secret"; exit 1; }
+          python3 nautilus_source/ci_sign_release.py
+      - name: Package signed MASTER ZIP
+        run: python3 nautilus_source/ci_package_signed_release.py
+      - name: Publish signed MASTER ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: NAUTILUS-MASTER-RELEASE-FIRMADA-ZIP
+          path: out/NAUTILUS_MASTER_RELEASE_FIRMADA_APK_INSTRUCCIONES.zip
+          if-no-files-found: error
+      - name: Publish signed APK and checksum
+        uses: actions/upload-artifact@v4
+        with:
+          name: NAUTILUS-RELEASE-OFICIAL-FIRMADA
+          path: |
+            out/Nautilus-Presentismo-MASTER-FIRMADA.apk
+            out/NAUTILUS_RELEASE_SHA256.txt
+          if-no-files-found: error
