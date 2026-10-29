@@ -160,3 +160,8 @@ jobs:
           if-no-files-found: ignore
       - name: Package V115 source handoff
         run: python3 nautilus_source/ci_package_master.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NAUTILUS-MASTER-V115-CODIGO
+          path: out/NAUTILUS_MASTER_V115_CODIGO_APK_INSTRUCCIONES.zip
+          if-no-files-found: error
