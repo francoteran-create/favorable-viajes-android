@@ -248,3 +248,5 @@ runpy.run_path(str(Path(__file__).with_name("v116_schedule_entry_exit.py")),run_
 runpy.run_path(str(Path(__file__).with_name("v117_manifest_security.py")),run_name="__main__")
 
 runpy.run_path(str(Path(__file__).with_name("v118_hd_splash_audio.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v119_launcher_sound.py")),run_name="__main__")
