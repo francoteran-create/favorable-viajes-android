@@ -18,4 +18,19 @@ click select_pdf_month "MES ACTUAL"
 sleep 3
 snap system_pdf_picker
 grep -F -q "Nautilus-Mensual-2026-10" out/smoke/system_pdf_picker.xml
-echo "PASS: October monthly PDF generated and Android Save As picker launched" | tee out/smoke/pdf_result.txt
+click system_pdf_picker "SAVE"
+sleep 3
+snap pdf_export_confirmation
+REMOTE="$(adb shell 'ls /sdcard/Download/Nautilus-Mensual-2026-10*.pdf 2>/dev/null' | tr -d '\r' | head -1)"
+test -n "$REMOTE"
+adb pull "$REMOTE" out/smoke/NAUTILUS_MENSUAL_PILOTO.pdf >/dev/null
+python3 - <<'PY'
+from pathlib import Path
+p=Path("out/smoke/NAUTILUS_MENSUAL_PILOTO.pdf")
+raw=p.read_bytes()
+assert len(raw)>1500,"PDF demasiado pequeño"
+assert raw.startswith(b"%PDF-"),"Falta encabezado PDF"
+assert b"%%EOF" in raw[-1024:],"PDF incompleto"
+print(f"PASS: PDF generado, guardado por Android y validado: {len(raw)} bytes")
+PY
+echo "PASS: 2 employees, 4 punches and October monthly PDF saved to Downloads" | tee out/smoke/pdf_result.txt
