@@ -1,0 +1,52 @@
+name: Nautilus Owner Signed Release
+on:
+  push:
+    branches: [nautilus-presentismo]
+  workflow_dispatch:
+jobs:
+  signed-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct Android project
+        shell: bash
+        run: |
+          cat nautilus_source/chunk_* > /tmp/nautilus-source.b64
+          base64 -d /tmp/nautilus-source.b64 > /tmp/nautilus-release.zip
+          mkdir -p /tmp/nautilus-release
+          unzip -q /tmp/nautilus-release.zip -d /tmp/nautilus-release
+          echo "PROJECT=$(find /tmp/nautilus-release -mindepth 1 -maxdepth 1 -type d | head -1)" >> "$GITHUB_ENV"
+      - name: Apply accumulated Nautilus updates
+        run: |
+          python3 nautilus_source/apply_v75_visual.py
+          python3 nautilus_source/apply_v80_stats_exit.py
+          python3 nautilus_source/apply_v85_management.py
+          python3 nautilus_source/v9_profiles.py
+          python3 nautilus_source/v9_management.py
+          python3 nautilus_source/v9_compat.py
+          python3 nautilus_source/ci_security_manifest_test.py
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.2'
+      - name: Set version
+        run: python3 nautilus_source/v85_version_code.py
+      - name: Build protected release
+        run: cd "$PROJECT" && gradle :app:assembleRelease --stacktrace
+      - name: Sign release with owner secret
+        env:
+          NAUTILUS_RELEASE_SIGNING_BUNDLE: ${{ secrets.NAUTILUS_RELEASE_SIGNING_BUNDLE }}
+        run: |
+          test -n "$NAUTILUS_RELEASE_SIGNING_BUNDLE" || { echo "::error::Missing signing secret"; exit 1; }
+          python3 nautilus_source/ci_sign_release.py
+      - name: Publish signed APK and checksum
+        uses: actions/upload-artifact@v4
+        with:
+          name: NAUTILUS-RELEASE-OFICIAL-FIRMADA
+          path: |
+            out/Nautilus-Presentismo-MASTER-FIRMADA.apk
+            out/NAUTILUS_RELEASE_SHA256.txt
+          if-no-files-found: error
