@@ -4,9 +4,13 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/nautilus-owner-release-main.yml'
+  pull_request:
+    branches: [main]
+    types: [synchronize]
   workflow_dispatch:
 jobs:
   signed-release:
+    if: github.event_name != 'pull_request' || (github.event.pull_request.head.ref == 'nautilus-presentismo' && github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
