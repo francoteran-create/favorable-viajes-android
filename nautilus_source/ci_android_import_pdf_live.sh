@@ -42,4 +42,14 @@ tap android_file_picker "Attendance_Report_PILOTO.xls"
 sleep 3
 dump imported_roster_result
 grep -F -q "Empleados identificados: 2" out/smoke/imported_roster_result.xml
-echo "PASS: Android selected and imported 2 employee records from SpreadsheetML" | tee out/smoke/import_hub_summary.txt
+tap imported_roster_result "ACEPTAR"
+sleep 2
+dump hub_after_roster
+tap hub_after_roster "ATTENDANCE LOGS.XLS"
+sleep 2
+dump logs_picker
+tap logs_picker "Attendance_logs_PILOTO.xls"
+sleep 3
+dump logs_import_result
+grep -F -q "Se agregaron 4 marcaciones nuevas" out/smoke/logs_import_result.xml
+echo "PASS: imported 2 personnel and 4 clock punches on Android" | tee out/smoke/import_hub_summary.txt
