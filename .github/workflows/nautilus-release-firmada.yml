@@ -69,6 +69,14 @@ jobs:
         run: |
           test -n "$NAUTILUS_RELEASE_SIGNING_BUNDLE" || { echo "::error::Missing signing secret"; exit 1; }
           python3 nautilus_source/ci_sign_release.py
+      - name: Package signed MASTER ZIP
+        run: python3 nautilus_source/ci_package_signed_release.py
+      - name: Publish signed MASTER ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: NAUTILUS-MASTER-RELEASE-FIRMADA-ZIP
+          path: out/NAUTILUS_MASTER_RELEASE_FIRMADA_APK_INSTRUCCIONES.zip
+          if-no-files-found: error
       - name: Publish signed APK and checksum
         uses: actions/upload-artifact@v4
         with:
