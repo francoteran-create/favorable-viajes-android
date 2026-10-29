@@ -36,7 +36,7 @@ public final class ClockPunchCore {
   private static String canonicalDate(String raw){
     if(raw==null)return null;
     String t=raw.trim();
-    String[] formats={"yyyy-MM-dd'T'HH:mm:ss","yyyy-MM-dd HH:mm:ss",
+    String[] formats={"yyyy-MM-dd'T'HH:mm:ss.SSS","yyyy-MM-dd HH:mm:ss.SSS","yyyy-MM-dd'T'HH:mm:ss","yyyy-MM-dd HH:mm:ss",
       "yyyy/MM/dd HH:mm:ss","dd/MM/yyyy HH:mm:ss",
       "yyyy-MM-dd'T'HH:mm","yyyy-MM-dd HH:mm",
       "yyyy/MM/dd HH:mm","dd/MM/yyyy HH:mm"};
