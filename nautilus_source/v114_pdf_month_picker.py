@@ -29,8 +29,16 @@ method=r'''
  }
 '''
 s=s.replace(anchor,method+"\n "+anchor,1)
-item='mtAddLink("◧","DOCUMENTO PDF","Preparar informe imprimible",this::reports);'
-assert item in s,"Modern reports PDF link changed"
-s=s.replace(item,'mtAddLink("◧","PDF MENSUAL","Elegir año, mes y carpeta de destino",this::mtPdfMonthSelect);',1)
+import re
+m=re.search(r'\bvoid\s+mtReports\s*\(\s*\)\s*\{',s)
+assert m,"Modern report menu missing"
+start=m.end()
+entry=s.find("mtScreen(",start,start+350)
+assert entry>=0,"Modern reports screen constructor missing"
+place=s.find(";",entry)
+assert place>=0 and place<start+450,"Modern reports screen constructor moved"
+s=s[:place+1]+'''
+  mtAddLink("◧","PDF MENSUAL","Elegir año, mes y carpeta de destino",this::mtPdfMonthSelect);
+'''+s[place+1:]
 p.write_text(s)
 print("V114: report menu provides year/month selection and direct PDF export to user-selected folder")
