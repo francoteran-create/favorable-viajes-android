@@ -42,4 +42,10 @@ with tempfile.TemporaryDirectory(prefix="nautilus-sign-") as temp:
     subprocess.run(cmd,env=env,check=True)
     subprocess.run([buildtools[-1],"verify","--verbose","--print-certs",str(out)],check=True)
 assert out.is_file() and out.stat().st_size>100000, "Signed APK missing"
+import hashlib
+digest=hashlib.sha256(out.read_bytes()).hexdigest()
+(out.parent/"NAUTILUS_RELEASE_SHA256.txt").write_text(
+    "Archivo: "+out.name+"\\nSHA256: "+digest+"\\n",
+    encoding="utf-8")
 print("PASS: release APK obfuscated, signed with the persistent owner key and verified.")
+print("Release APK SHA256: "+digest)
