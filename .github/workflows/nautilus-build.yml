@@ -1,0 +1,197 @@
+name: Build Nautilus Presentismo APK
+on:
+  push:
+    branches: [ nautilus-presentismo ]
+  workflow_dispatch:
+jobs:
+  build-nautilus:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct Nautilus source
+        run: |
+          cat nautilus_source/chunk_* > nautilus_source/source.b64
+          base64 -d nautilus_source/source.b64 > /tmp/nautilus.zip
+          mkdir -p /tmp/nautilus
+          unzip -q /tmp/nautilus.zip -d /tmp/nautilus
+          echo "PROJECT=$(find /tmp/nautilus -mindepth 1 -maxdepth 1 -type d | head -1)" >> "$GITHUB_ENV"
+      - name: Complete diagnostic punch helper
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          p=Path(os.environ["PROJECT"])/"app/src/main/java/ar/com/nautiluscountry/presentismo/MainActivity.java"
+          s=p.read_text()
+          helper="""
+           ArrayList<Date> punchesForWorkday(String pid,String day,String st,String et){
+            ArrayList<Date> out=new ArrayList<>();
+            try{
+             SimpleDateFormat df=new SimpleDateFormat("yyyy-MM-dd HH:mm",Locale.US);
+             Date a=df.parse(day+" "+st),b=df.parse(day+" "+et);
+             if(!b.after(a))b=new Date(b.getTime()+86400000L);
+             SimpleDateFormat iso=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",Locale.US);
+             String from=iso.format(new Date(a.getTime()-14400000L));
+             String to=iso.format(new Date(b.getTime()+14400000L));
+             Cursor c=db.getReadableDatabase().rawQuery("SELECT stamp FROM punches WHERE person_id=? AND stamp>=? AND stamp<=? ORDER BY stamp",new String[]{pid,from,to});
+             while(c.moveToNext()){try{out.add(iso.parse(c.getString(0).substring(0,19)));}catch(Exception ignored){}}
+             c.close();
+            }catch(Exception ignored){}
+            return out;
+           }
+          """
+          assert " static class DayResult{" in s
+          p.write_text(s.replace(" static class DayResult{",helper+"\n static class DayResult{"))
+          PY
+      - name: Apply Nautilus V7.5 mobile interface
+        run: python3 nautilus_source/apply_v75_visual.py
+      - name: Apply Nautilus V8 exit and worker statistics
+        run: python3 nautilus_source/apply_v80_stats_exit.py
+      - name: Apply Nautilus V8.5 management analytics
+        run: python3 nautilus_source/apply_v85_management.py
+      - name: Apply Nautilus V9 employee profiles
+        run: python3 nautilus_source/v9_profiles.py
+      - name: Apply Nautilus V9 management hub
+        run: python3 nautilus_source/v9_management.py
+      - name: Apply V9 engine compatibility
+        run: python3 nautilus_source/v9_compat.py
+      - name: Audit reconstructed app privacy configuration
+        run: python3 nautilus_source/ci_security_manifest_test.py
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Test offline license crypto and expiry using isolated RSA test keys
+        run: |
+          mkdir -p /tmp/nautilus-license-tests
+          javac -d /tmp/nautilus-license-tests nautilus_source/license_core/OfflineLicenseCore.java nautilus_source/license_core/OfflineLicenseCoreTest.java
+          java -cp /tmp/nautilus-license-tests ar.com.nautiluscountry.presentismo.OfflineLicenseCoreTest
+      - name: Test real clock Excel roster imports and hostile input
+        run: |
+          mkdir -p /tmp/nautilus-clock-tests
+          javac -d /tmp/nautilus-clock-tests nautilus_source/excel_core/ClockRosterCore.java nautilus_source/excel_core/ClockRosterCoreTest.java
+          java -cp /tmp/nautilus-clock-tests ar.com.nautiluscountry.presentismo.ClockRosterCoreTest
+      - name: Test biometric clock punch import timestamps and invalid files
+        run: |
+          mkdir -p /tmp/nautilus-punch-tests
+          javac -d /tmp/nautilus-punch-tests nautilus_source/excel_core/ClockPunchCore.java nautilus_source/excel_core/ClockPunchCoreTest.java
+          java -cp /tmp/nautilus-punch-tests ar.com.nautiluscountry.presentismo.ClockPunchCoreTest
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.2'
+      - name: Set monotonic Android version
+        run: python3 nautilus_source/v85_version_code.py
+      - name: Install permanent signing key if configured
+        env:
+          NAUTILUS_DEBUG_KEYSTORE_B64: ${{ secrets.NAUTILUS_DEBUG_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$NAUTILUS_DEBUG_KEYSTORE_B64" ]; then
+            mkdir -p "$HOME/.android"
+            printf '%s' "$NAUTILUS_DEBUG_KEYSTORE_B64" | base64 -d > "$HOME/.android/debug.keystore"
+            chmod 600 "$HOME/.android/debug.keystore"
+            echo "Permanent Android signing key configured."
+          else
+            echo "::warning::No NAUTILUS_DEBUG_KEYSTORE_B64 secret. This build uses a temporary debug key and may not update older installations."
+          fi
+      - name: Require stable signing for distributable builds
+        env:
+          NAUTILUS_DEBUG_KEYSTORE_B64: ${{ secrets.NAUTILUS_DEBUG_KEYSTORE_B64 }}
+        run: |
+          if [ -z "$NAUTILUS_DEBUG_KEYSTORE_B64" ]; then
+            echo "::warning::NO DISTRIBUIR: la APK debug está firmada con una clave temporal. Configurar el secreto de firma antes de la MASTER."
+          fi
+      - name: Check stable signing key matches Android debug signing requirements
+        env:
+          NAUTILUS_DEBUG_KEYSTORE_B64: ${{ secrets.NAUTILUS_DEBUG_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$NAUTILUS_DEBUG_KEYSTORE_B64" ]; then
+            keytool -list -v -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey | grep -E 'Alias name:|SHA256:' | head -2
+          else
+            echo "::notice::Pilot-only build. Stable signing is a release blocker."
+          fi
+      - name: Build debug APK
+        run: cd "$PROJECT" && gradle :app:assembleDebug --stacktrace
+      - name: Build obfuscated production APK
+        run: cd "$PROJECT" && gradle :app:assembleRelease --stacktrace
+      - name: Sign release APK with owner key
+        env:
+          NAUTILUS_RELEASE_SIGNING_BUNDLE: ${{ secrets.NAUTILUS_RELEASE_SIGNING_BUNDLE }}
+        run: |
+          test -n "$NAUTILUS_RELEASE_SIGNING_BUNDLE" || { echo "::error::Missing owner signing bundle"; exit 1; }
+          python3 nautilus_source/ci_sign_release.py
+      - name: Upload signed production APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: NAUTILUS-RELEASE-OFICIAL-FIRMADA
+          path: |
+            out/Nautilus-Presentismo-MASTER-FIRMADA.apk
+            out/NAUTILUS_RELEASE_SHA256.txt
+          if-no-files-found: error
+      - name: Verify obfuscated release build
+        run: cd "$PROJECT" && gradle :app:assembleRelease --stacktrace
+      - name: Sign a real obfuscated release with a throwaway CI certificate
+        run: python3 nautilus_source/ci_release_signing_selftest.py
+      - name: Enable KVM for Android emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Install, launch and inspect Nautilus on Android 29
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          arch: x86_64
+          target: google_apis
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+          script: SMOKE_APK="$RUNNER_TEMP/nautilus-smoke-signed-release.apk" bash nautilus_source/ci_emulator_smoke.sh && bash nautilus_source/ci_android_admin_live.sh && bash nautilus_source/ci_android_import_pdf_live.sh && bash nautilus_source/ci_android_pdf_live.sh
+      - name: Verify monthly PDF text stays on page
+        run: |
+          python3 -m pip install --quiet pymupdf==1.26.7
+          python3 nautilus_source/ci_pdf_text_bounds.py out/smoke/NAUTILUS_MENSUAL_PILOTO.pdf
+      - name: Package pilot ZIP with APK and instructions
+        run: python3 nautilus_source/ci_package_pilot_apk.py
+      - name: Upload Nautilus pilot ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: NAUTILUS-V116-3-PILOTO-ZIP-APK
+          path: out/NAUTILUS_PRESENTISMO_V116_3_PILOTO_APK_INSTRUCCIONES.zip
+          if-no-files-found: error
+      - name: Upload device smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: NAUTILUS-ANDROID-DEVICE-SMOKE
+          path: out/smoke/
+          if-no-files-found: ignore
+      - name: Verify APK signature and stable signing material
+        env:
+          NAUTILUS_DEBUG_KEYSTORE_B64: ${{ secrets.NAUTILUS_DEBUG_KEYSTORE_B64 }}
+        run: |
+          APK="$PROJECT/app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          if [ -n "$NAUTILUS_DEBUG_KEYSTORE_B64" ]; then
+            test -s "$HOME/.android/debug.keystore"
+            keytool -list -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey >/dev/null
+            echo "Configured signing keystore validated."
+          else
+            echo "::warning::Build only for testing: stable signing secret is not configured."
+          fi
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -1)"
+          test -n "$APKSIGNER"
+          "$APKSIGNER" verify --verbose "$APK"
+      - name: Sign and verify obfuscated release APK (owner signing key only)
+        env:
+          NAUTILUS_RELEASE_SIGNING_BUNDLE: ${{ secrets.NAUTILUS_RELEASE_SIGNING_BUNDLE }}
+        run: python3 nautilus_source/ci_sign_release.py
+      - name: Upload ONLY persistent-key signed release
+        uses: actions/upload-artifact@v4
+        with:
+          name: NAUTILUS-MASTER-RELEASE-FIRMADA
+          path: out/Nautilus-Presentismo-MASTER-FIRMADA.apk
+          if-no-files-found: ignore
+      - name: Package V115 source handoff
+        run: python3 nautilus_source/ci_package_master.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NAUTILUS-MASTER-V115-CODIGO
+          path: out/NAUTILUS_MASTER_V115_CODIGO_APK_INSTRUCCIONES.zip
+          if-no-files-found: error
