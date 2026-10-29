@@ -110,6 +110,22 @@ jobs:
           fi
       - name: Build debug APK
         run: cd "$PROJECT" && gradle :app:assembleDebug --stacktrace
+      - name: Build obfuscated production APK
+        run: cd "$PROJECT" && gradle :app:assembleRelease --stacktrace
+      - name: Sign release APK with owner key
+        env:
+          NAUTILUS_RELEASE_SIGNING_BUNDLE: ${{ secrets.NAUTILUS_RELEASE_SIGNING_BUNDLE }}
+        run: |
+          test -n "$NAUTILUS_RELEASE_SIGNING_BUNDLE" || { echo "::error::Missing owner signing bundle"; exit 1; }
+          python3 nautilus_source/ci_sign_release.py
+      - name: Upload signed production APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: NAUTILUS-RELEASE-OFICIAL-FIRMADA
+          path: |
+            out/Nautilus-Presentismo-MASTER-FIRMADA.apk
+            out/NAUTILUS_RELEASE_SHA256.txt
+          if-no-files-found: error
       - name: Verify obfuscated release build
         run: cd "$PROJECT" && gradle :app:assembleRelease --stacktrace
       - name: Sign a real obfuscated release with a throwaway CI certificate
