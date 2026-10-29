@@ -37,4 +37,9 @@ grep -F -q "ATTENDANCE LOGS.XLS" out/smoke/import_hub.xml
 tap import_hub "ATTENDANCE REPORT.XLS"
 sleep 2
 dump android_file_picker
-echo "PASS: real PIN re-login works; both biometric Excel import actions open and Android file picker launches" | tee out/smoke/import_hub_summary.txt
+grep -F -q "Attendance_Report_PILOTO.xls" out/smoke/android_file_picker.xml
+tap android_file_picker "Attendance_Report_PILOTO.xls"
+sleep 3
+dump imported_roster_result
+grep -F -q "Empleados identificados: 2" out/smoke/imported_roster_result.xml
+echo "PASS: Android selected and imported 2 employee records from SpreadsheetML" | tee out/smoke/import_hub_summary.txt
