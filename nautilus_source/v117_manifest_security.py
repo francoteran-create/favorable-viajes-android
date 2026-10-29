@@ -10,8 +10,7 @@ head=s[start:end]
 for attr,value in {
  "android:allowBackup":"false",
  "android:fullBackupContent":"false",
- "android:usesCleartextTraffic":"false",
- "android:debuggable":"false"
+ "android:usesCleartextTraffic":"false"
 }.items():
  if re.search(r'\\b'+re.escape(attr)+r'="[^"]*"',head):
   head=re.sub(r'\\b'+re.escape(attr)+r'="[^"]*"',attr+'="'+value+'"',head)
