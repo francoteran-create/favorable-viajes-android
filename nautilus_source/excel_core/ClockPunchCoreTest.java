@@ -41,6 +41,13 @@ public final class ClockPunchCoreTest {
     check(found.get(2).stamp.equals("2026-10-28T18:01:00"),"Argentine date and missing seconds");
     check(found.get(0).name.equals("Ana Pérez"),"employee name preserved");
     check(found.get(0).device.equals("Clock-A"),"device field preserved");
+    ArrayList<ClockPunchCore.Punch> clockMillis=parse(head()+headers+
+      row("123","Ejemplo","2026-09-01T06:49:02.000","Clock-C")+
+      row("123","Ejemplo","2026-09-01T15:02:44.750","Clock-C")+tail());
+    check(clockMillis.size()==2,"actual clock milliseconds timestamps accepted");
+    check(clockMillis.get(0).stamp.equals("2026-09-01T06:49:02"),"zero milliseconds canonicalized");
+    check(clockMillis.get(1).stamp.equals("2026-09-01T15:02:44"),"fractional seconds canonicalized");
+
     String sparse="<Row><Cell ss:Index=\"2\"><Data ss:Type=\"String\">ID.</Data></Cell>"+
       "<Cell><Data>Name</Data></Cell><Cell><Data>Att.Time</Data></Cell></Row>";
     String data="<Row><Cell ss:Index=\"2\"><Data>0010</Data></Cell>"+
