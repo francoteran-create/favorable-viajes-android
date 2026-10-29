@@ -18,4 +18,4 @@ for attr,value in {
   head+=' '+attr+'="'+value+'"'
 s=s[:start]+head+s[end:]
 manifest.write_text(s,encoding="utf-8")
-print("Nautilus release hardening: backup, cleartext traffic and debugging disabled in manifest")
+print("Nautilus release hardening: backup and cleartext traffic restricted in manifest")
