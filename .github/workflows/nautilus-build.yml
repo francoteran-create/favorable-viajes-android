@@ -129,6 +129,14 @@ jobs:
         run: |
           python3 -m pip install --quiet pymupdf==1.26.7
           python3 nautilus_source/ci_pdf_text_bounds.py out/smoke/NAUTILUS_MENSUAL_PILOTO.pdf
+      - name: Package pilot ZIP with APK and instructions
+        run: python3 nautilus_source/ci_package_pilot_apk.py
+      - name: Upload Nautilus pilot ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: NAUTILUS-V116-3-PILOTO-ZIP-APK
+          path: out/NAUTILUS_PRESENTISMO_V116_3_PILOTO_APK_INSTRUCCIONES.zip
+          if-no-files-found: error
       - name: Upload device smoke evidence
         if: always()
         uses: actions/upload-artifact@v4
