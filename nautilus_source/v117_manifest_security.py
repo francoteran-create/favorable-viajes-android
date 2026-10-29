@@ -1,21 +1,23 @@
 from pathlib import Path
-import os,re
-root=Path(os.environ["PROJECT"])
-manifest=root/"app/src/main/AndroidManifest.xml"
-s=manifest.read_text(encoding="utf-8")
-assert "<application" in s and "</application>" in s
-start=s.index("<application")
-end=s.index(">",start)
-head=s[start:end]
-for attr,value in {
- "android:allowBackup":"false",
- "android:fullBackupContent":"false",
- "android:usesCleartextTraffic":"false"
-}.items():
- if re.search(r'\\b'+re.escape(attr)+r'="[^"]*"',head):
-  head=re.sub(r'\\b'+re.escape(attr)+r'="[^"]*"',attr+'="'+value+'"',head)
- else:
-  head+=' '+attr+'="'+value+'"'
-s=s[:start]+head+s[end:]
-manifest.write_text(s,encoding="utf-8")
-print("Nautilus release hardening: backup and cleartext traffic restricted in manifest")
+import os
+import re
+
+root = Path(os.environ["PROJECT"])
+manifest = root / "app/src/main/AndroidManifest.xml"
+content = manifest.read_text(encoding="utf-8")
+assert "<application" in content and "</application>" in content
+
+start = content.index("<application")
+end = content.index(">", start)
+tag = content[start:end]
+# Normalize all copies of each security setting; never append a duplicate.
+for attr in ("allowBackup", "fullBackupContent", "usesCleartextTraffic"):
+    tag = re.sub(r'\\s+android:' + attr + r'="[^"]*"', "", tag)
+    # Replace handles old scripts that may have duplicated an attribute.
+    tag = re.sub(r'\s+android:' + attr + r'="[^"]*"', "", tag)
+    tag += f' android:{attr}="false"'
+content = content[:start] + tag + content[end:]
+manifest.write_text(content, encoding="utf-8")
+for attr in ("allowBackup", "fullBackupContent", "usesCleartextTraffic"):
+    assert tag.count("android:" + attr + "=") == 1, "Duplicate security attribute: " + attr
+print("V117: manifest security attributes normalized without duplicates")
