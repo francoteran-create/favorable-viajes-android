@@ -10,6 +10,11 @@ method=r'''
   currentScreen="INFORMES";
   mtScreen("GUARDAR INFORME PDF · ELEGIR MES",3);
   body.addView(mtText("Elegí el mes a exportar. El PDF incluye jornadas por empleado y total del plantel, y se guarda en la carpeta que selecciones.",13,mtPale(),false));
+  java.util.Calendar today=java.util.Calendar.getInstance();
+  if(year==today.get(java.util.Calendar.YEAR)){
+   final String currentKey=String.format(Locale.US,"%04d-%02d",year,today.get(java.util.Calendar.MONTH)+1);
+   mtAddLink("✓","MES ACTUAL","Generar PDF de este mes",()->{selectedYm=currentKey;generateFormalPdf();});
+  }
   mtAddLink("‹","AÑO ANTERIOR","Ver meses de "+(year-1),()->mtPdfMonthSelect(year-1));
   body.addView(mtText("AÑO "+year,19,Color.WHITE,true));
   String[] months={"ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO","JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE"};
