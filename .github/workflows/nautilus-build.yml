@@ -125,6 +125,10 @@ jobs:
           target: google_apis
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
           script: SMOKE_APK="$RUNNER_TEMP/nautilus-smoke-signed-release.apk" bash nautilus_source/ci_emulator_smoke.sh && bash nautilus_source/ci_android_admin_live.sh && bash nautilus_source/ci_android_import_pdf_live.sh && bash nautilus_source/ci_android_pdf_live.sh
+      - name: Verify monthly PDF text stays on page
+        run: |
+          python3 -m pip install --quiet pymupdf==1.26.7
+          python3 nautilus_source/ci_pdf_text_bounds.py out/smoke/NAUTILUS_MENSUAL_PILOTO.pdf
       - name: Upload device smoke evidence
         if: always()
         uses: actions/upload-artifact@v4
