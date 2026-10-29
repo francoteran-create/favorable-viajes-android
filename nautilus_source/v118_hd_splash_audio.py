@@ -16,7 +16,7 @@ s = s.replace(old, 'art.setScaleType(android.widget.ImageView.ScaleType.FIT_CENT
 old = 'splash.setContentView(art);splash.setCancelable(false);splash.show();'
 assert s.count(old) == 1, "Splash display hook moved"
 s = s.replace(old, old + '\n  ntPlayLaunchSound();', 1)
-old = '},500);\n }\n void secLogin(){'
+old = '},1000);\n }\n void secLogin(){'
 assert s.count(old) == 1, "Splash duration hook moved"
 s = s.replace(old, '},1350);\n }\n void secLogin(){', 1)
 
