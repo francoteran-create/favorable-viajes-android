@@ -242,3 +242,5 @@ runpy.run_path(str(Path(__file__).with_name("v113_punch_import_core.py")),run_na
 runpy.run_path(str(Path(__file__).with_name("v114_pdf_month_picker.py")),run_name="__main__")
 runpy.run_path(str(Path(__file__).with_name("v115_readable_monthly_pdf.py")),run_name="__main__")
 runpy.run_path(str(Path(__file__).with_name("v115_readable_pdf.py")),run_name="__main__")
+
+runpy.run_path(str(Path(__file__).with_name("v116_schedule_entry_exit.py")),run_name="__main__")
