@@ -17,12 +17,12 @@ public class MainActivity extends Activity implements SensorEventListener {
  accel=sensors.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
  light=sensors.getDefaultSensor(Sensor.TYPE_LIGHT);
  LinearLayout layout=new LinearLayout(this);layout.setOrientation(LinearLayout.VERTICAL);layout.setPadding(32,40,32,32);
- TextView title=new TextView(this);title.setText("VIGÍA — prueba de sensores");title.setTextSize(22);layout.addView(title);
- status=new TextView(this);status.setText("Sensores detenidos. Esta versión NO graba video.");layout.addView(status);
+ TextView title=new TextView(this);title.setText("VIGÍA — pruebas de cámara y sensores");title.setTextSize(22);layout.addView(title);
+ status=new TextView(this);status.setText("Sensores detenidos. Grabación manual disponible.");layout.addView(status);
  Button start=new Button(this);start.setText("INICIAR SENSORES");start.setOnClickListener(v->startSensors());layout.addView(start);
  Button stop=new Button(this);stop.setText("DETENER");stop.setOnClickListener(v->stopSensors());layout.addView(stop);
  Button alert=new Button(this);alert.setText("PROBAR ALERTA AL RELOJ");alert.setOnClickListener(v->WatchAlerts.testAlert(this));layout.addView(alert);
- TextView config=new TextView(this);config.setText("Opciones de grabación (se guardan; grabador pendiente)");layout.addView(config);
+ TextView config=new TextView(this);config.setText("Opciones de grabación manual");layout.addView(config);
  Spinner quality=new Spinner(this);
  String[] resolutions={"480p","720p","1080p"};quality.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,resolutions));
  int savedResolution=RecordingPreferences.get(this).getInt("resolution",720);
@@ -31,8 +31,8 @@ public class MainActivity extends Activity implements SensorEventListener {
  duration.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,durations));
  int savedSeconds=RecordingPreferences.get(this).getInt("seconds",30);
  duration.setSelection(savedSeconds==10?0:savedSeconds==60?2:1);layout.addView(duration);
- CheckBox photos=new CheckBox(this);photos.setText("Fotos cada 5 segundos");photos.setChecked(RecordingPreferences.get(this).getBoolean("photos",true));layout.addView(photos);
- CheckBox audio=new CheckBox(this);audio.setText("Grabar audio");audio.setChecked(RecordingPreferences.get(this).getBoolean("audio",false));layout.addView(audio);
+ CheckBox photos=new CheckBox(this);photos.setText("Fotos cada 5 segundos (pendiente)");photos.setChecked(RecordingPreferences.get(this).getBoolean("photos",true));layout.addView(photos);
+ CheckBox audio=new CheckBox(this);audio.setText("Grabar audio (pendiente)");audio.setChecked(RecordingPreferences.get(this).getBoolean("audio",false));layout.addView(audio);
  Button save=new Button(this);save.setText("GUARDAR CONFIGURACIÓN");save.setOnClickListener(v->{
  int r=new int[]{480,720,1080}[quality.getSelectedItemPosition()];
  int sec=new int[]{10,30,60}[duration.getSelectedItemPosition()];
@@ -40,7 +40,8 @@ public class MainActivity extends Activity implements SensorEventListener {
  Toast.makeText(this,"Configuración guardada",Toast.LENGTH_SHORT).show();
  });layout.addView(save);
  Button record=new Button(this);record.setText("ABRIR CÁMARA Y GRABAR");record.setOnClickListener(v->startActivity(new android.content.Intent(this,RecorderActivity.class)));layout.addView(record);
- setContentView(layout);
+ Button gallery=new Button(this);gallery.setText("VER GRABACIONES");gallery.setOnClickListener(v->startActivity(new android.content.Intent(this,GalleryActivity.class)));layout.addView(gallery);
+ ScrollView scroll=new ScrollView(this);scroll.addView(layout);setContentView(scroll);
  }
  private void startSensors(){if(monitoring)return;monitoring=true;lastLux=-1;
  if(accel!=null)sensors.registerListener(this,accel,SensorManager.SENSOR_DELAY_NORMAL);
