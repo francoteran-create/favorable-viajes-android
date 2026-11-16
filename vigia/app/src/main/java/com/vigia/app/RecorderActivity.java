@@ -20,6 +20,7 @@ public class RecorderActivity extends Activity implements SurfaceHolder.Callback
  private TextView status;
  private boolean recording=false;
  private File output;
+ private boolean surfaceReady=false;
  private final android.os.Handler timer=new android.os.Handler(android.os.Looper.getMainLooper());
  private final Runnable timeout=()->{if(recording)stopVideo();};
  private final Runnable check=new Runnable(){@Override public void run(){if(!recording)return;
@@ -37,13 +38,14 @@ public class RecorderActivity extends Activity implements SurfaceHolder.Callback
   if(checkSelfPermission(Manifest.permission.CAMERA)!=PackageManager.PERMISSION_GRANTED)requestPermissions(new String[]{Manifest.permission.CAMERA},7);
  }
  @Override public void onRequestPermissionsResult(int requestCode,String[] permissions,int[] results){super.onRequestPermissionsResult(requestCode,permissions,results);if(requestCode==7&&results.length>0&&results[0]==PackageManager.PERMISSION_GRANTED)openCamera();}
- private void openCamera(){if(camera!=null||holder==null||!holder.getSurface().isValid())return;
+ private void openCamera(){if(camera!=null||holder==null||!surfaceReady||!holder.getSurface().isValid())return;
   try{camera=Camera.open();camera.setDisplayOrientation(90);camera.setPreviewDisplay(holder);camera.startPreview();status.setText("Cámara lista");}
   catch(Exception e){status.setText("Error de cámara: "+e.getMessage());releaseCamera();}
  }
  private void startVideo(){if(recording)return;
   if(checkSelfPermission(Manifest.permission.CAMERA)!=PackageManager.PERMISSION_GRANTED){status.setText("Permiso de cámara requerido");return;}
   if(camera==null){openCamera();if(camera==null)return;}
+  if(!surfaceReady){status.setText("Vista previa no disponible");return;}
   if(SafetyLimits.currentMode(this)==SafetyLimits.Mode.STOP_AND_FINALIZE){status.setText("Batería o almacenamiento insuficiente");return;}
   try{
    camera.stopPreview();camera.unlock();recorder=new MediaRecorder();recorder.setCamera(camera);
@@ -64,13 +66,13 @@ public class RecorderActivity extends Activity implements SurfaceHolder.Callback
   finally{recording=false;releaseRecorder();}
   if(!saved&&output!=null)output.delete();
   if(saved&&output!=null)status.setText("Guardado: "+output.getName());
-  openCamera();
+  if(surfaceReady)openCamera();
  }
  private void releaseRecorder(){if(recorder!=null){try{recorder.reset();recorder.release();}catch(Exception ignored){}recorder=null;}releaseCamera();}
  private void releaseCamera(){if(camera!=null){try{camera.lock();camera.release();}catch(Exception ignored){}camera=null;}}
- @Override public void surfaceCreated(SurfaceHolder h){holder=h;if(checkSelfPermission(Manifest.permission.CAMERA)==PackageManager.PERMISSION_GRANTED)openCamera();}
+ @Override public void surfaceCreated(SurfaceHolder h){holder=h;surfaceReady=true;if(checkSelfPermission(Manifest.permission.CAMERA)==PackageManager.PERMISSION_GRANTED)openCamera();}
  @Override public void surfaceChanged(SurfaceHolder h,int format,int width,int height){}
- @Override public void surfaceDestroyed(SurfaceHolder h){stopVideo();releaseCamera();}
+ @Override public void surfaceDestroyed(SurfaceHolder h){surfaceReady=false;stopVideo();releaseCamera();}
  @Override protected void onPause(){stopVideo();releaseCamera();super.onPause();}
  @Override protected void onDestroy(){stopVideo();releaseCamera();super.onDestroy();}
 }
