@@ -8,7 +8,9 @@ import android.os.Build;
 public final class WatchAlerts {
  private static final String CHANNEL="vigia_events";
  private WatchAlerts(){}
- public static void recordingStarted(Context context) {
+ public static void recordingStarted(Context context) { send(context,"Grabación iniciada"); }
+ public static void testAlert(Context context) { send(context,"Prueba de alerta al reloj"); }
+ private static void send(Context context,String message) {
   NotificationManager manager=(NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
   if(manager==null)return;
   if(Build.VERSION.SDK_INT>=26) {
@@ -18,7 +20,7 @@ public final class WatchAlerts {
   }
   Notification.Builder builder=Build.VERSION.SDK_INT>=26?new Notification.Builder(context,CHANNEL):new Notification.Builder(context);
   Notification n=builder.setSmallIcon(android.R.drawable.presence_video_online)
-    .setContentTitle("VIGÍA").setContentText("Grabación iniciada")
+    .setContentTitle("VIGÍA").setContentText(message)
     .setAutoCancel(true).setOnlyAlertOnce(true).build();
   manager.notify(101,n);
  }
