@@ -17,12 +17,15 @@ public final class SafetyLimits {
   return manager==null?-1:manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
  }
  public static long availableBytes(Context context) {
-  StatFs stat=new StatFs(context.getFilesDir().getAbsolutePath());
+  java.io.File volume=context.getExternalFilesDir(null);
+  if(volume==null) return 0L;
+  StatFs stat=new StatFs(volume.getAbsolutePath());
   return stat.getAvailableBytes();
  }
  public static Mode currentMode(Context context) {
   int battery=batteryPercent(context);
-  if(battery<0) return Mode.STOP_AND_FINALIZE; // fail safe
-  return evaluate(battery,availableBytes(context));
+  if(battery<0 || battery>100) return Mode.STOP_AND_FINALIZE; // fail safe
+  try { return evaluate(battery,availableBytes(context)); }
+  catch(RuntimeException e){return Mode.STOP_AND_FINALIZE;}
  }
 }
