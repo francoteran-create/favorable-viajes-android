@@ -1,0 +1,67 @@
+package com.vigia.app;
+import android.Manifest;
+import android.app.Activity;
+import android.content.pm.PackageManager;
+import android.hardware.Camera;
+import android.media.MediaRecorder;
+import android.os.Bundle;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import java.io.File;
+/** Foreground-only manual recording prototype; not background surveillance. */
+@SuppressWarnings("deprecation")
+public class RecorderActivity extends Activity implements SurfaceHolder.Callback {
+ private Camera camera;
+ private MediaRecorder recorder;
+ private SurfaceHolder holder;
+ private TextView status;
+ private boolean recording=false;
+ private File output;
+ @Override public void onCreate(Bundle state){super.onCreate(state);
+  LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);
+  status=new TextView(this);status.setText("Esperando cámara");root.addView(status);
+  SurfaceView preview=new SurfaceView(this);holder=preview.getHolder();holder.addCallback(this);
+  root.addView(preview,new LinearLayout.LayoutParams(-1,0,1));
+  Button start=new Button(this);start.setText("INICIAR VIDEO");start.setOnClickListener(v->startVideo());root.addView(start);
+  Button stop=new Button(this);stop.setText("DETENER Y GUARDAR");stop.setOnClickListener(v->stopVideo());root.addView(stop);
+  setContentView(root);
+  if(checkSelfPermission(Manifest.permission.CAMERA)!=PackageManager.PERMISSION_GRANTED)requestPermissions(new String[]{Manifest.permission.CAMERA},7);
+ }
+ @Override public void onRequestPermissionsResult(int requestCode,String[] permissions,int[] results){super.onRequestPermissionsResult(requestCode,permissions,results);if(requestCode==7&&results.length>0&&results[0]==PackageManager.PERMISSION_GRANTED)openCamera();}
+ private void openCamera(){if(camera!=null||holder==null||!holder.getSurface().isValid())return;
+  try{camera=Camera.open();camera.setDisplayOrientation(90);camera.setPreviewDisplay(holder);camera.startPreview();status.setText("Cámara lista");}
+  catch(Exception e){status.setText("Error de cámara: "+e.getMessage());releaseCamera();}
+ }
+ private void startVideo(){if(recording)return;
+  if(checkSelfPermission(Manifest.permission.CAMERA)!=PackageManager.PERMISSION_GRANTED){status.setText("Permiso de cámara requerido");return;}
+  if(camera==null){openCamera();if(camera==null)return;}
+  if(SafetyLimits.currentMode(this)==SafetyLimits.Mode.STOP_AND_FINALIZE){status.setText("Batería o almacenamiento insuficiente");return;}
+  try{
+   camera.stopPreview();camera.unlock();recorder=new MediaRecorder();recorder.setCamera(camera);
+   recorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+   recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+   recorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+   recorder.setVideoSize(640,480);recorder.setVideoFrameRate(24);recorder.setVideoEncodingBitRate(1500000);
+   output=MediaStorage.nextVideo(this);recorder.setOutputFile(output.getAbsolutePath());
+   recorder.setPreviewDisplay(holder.getSurface());recorder.prepare();recorder.start();
+   recording=true;status.setText("Grabando: "+output.getName());WatchAlerts.recordingStarted(this);
+  }catch(Exception e){status.setText("No se pudo iniciar: "+e.getMessage());releaseRecorder();openCamera();}
+ }
+ private void stopVideo(){if(!recording)return;boolean saved=false;
+  try{recorder.stop();saved=true;}catch(RuntimeException e){status.setText("Grabación incompleta");}
+  finally{recording=false;releaseRecorder();}
+  if(!saved&&output!=null)output.delete();
+  if(saved&&output!=null)status.setText("Guardado: "+output.getName());
+  openCamera();
+ }
+ private void releaseRecorder(){if(recorder!=null){try{recorder.reset();recorder.release();}catch(Exception ignored){}recorder=null;}releaseCamera();}
+ private void releaseCamera(){if(camera!=null){try{camera.lock();camera.release();}catch(Exception ignored){}camera=null;}}
+ @Override public void surfaceCreated(SurfaceHolder h){holder=h;if(checkSelfPermission(Manifest.permission.CAMERA)==PackageManager.PERMISSION_GRANTED)openCamera();}
+ @Override public void surfaceChanged(SurfaceHolder h,int format,int width,int height){}
+ @Override public void surfaceDestroyed(SurfaceHolder h){stopVideo();releaseCamera();}
+ @Override protected void onPause(){stopVideo();releaseCamera();super.onPause();}
+ @Override protected void onDestroy(){stopVideo();releaseCamera();super.onDestroy();}
+}
