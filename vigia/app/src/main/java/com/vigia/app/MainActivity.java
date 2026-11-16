@@ -39,6 +39,7 @@ public class MainActivity extends Activity implements SensorEventListener {
  RecordingPreferences.save(this,r,sec,photos.isChecked(),audio.isChecked());
  Toast.makeText(this,"Configuración guardada",Toast.LENGTH_SHORT).show();
  });layout.addView(save);
+ Button record=new Button(this);record.setText("ABRIR CÁMARA Y GRABAR");record.setOnClickListener(v->startActivity(new android.content.Intent(this,RecorderActivity.class)));layout.addView(record);
  setContentView(layout);
  }
  private void startSensors(){if(monitoring)return;monitoring=true;lastLux=-1;
