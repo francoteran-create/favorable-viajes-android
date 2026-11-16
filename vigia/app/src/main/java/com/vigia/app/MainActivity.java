@@ -21,6 +21,7 @@ public class MainActivity extends Activity implements SensorEventListener {
  status=new TextView(this);status.setText("Sensores detenidos. Esta versión NO graba video.");layout.addView(status);
  Button start=new Button(this);start.setText("INICIAR SENSORES");start.setOnClickListener(v->startSensors());layout.addView(start);
  Button stop=new Button(this);stop.setText("DETENER");stop.setOnClickListener(v->stopSensors());layout.addView(stop);
+ Button alert=new Button(this);alert.setText("PROBAR ALERTA AL RELOJ");alert.setOnClickListener(v->WatchAlerts.recordingStarted(this));layout.addView(alert);
  setContentView(layout);
  }
  private void startSensors(){if(monitoring)return;monitoring=true;lastLux=-1;
