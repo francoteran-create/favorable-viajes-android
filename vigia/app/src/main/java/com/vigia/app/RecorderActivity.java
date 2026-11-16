@@ -20,6 +20,11 @@ public class RecorderActivity extends Activity implements SurfaceHolder.Callback
  private TextView status;
  private boolean recording=false;
  private File output;
+ private final android.os.Handler timer=new android.os.Handler(android.os.Looper.getMainLooper());
+ private final Runnable check=new Runnable(){@Override public void run(){if(!recording)return;
+  if(SafetyLimits.currentMode(RecorderActivity.this)==SafetyLimits.Mode.STOP_AND_FINALIZE){stopVideo();status.setText("Grabación detenida por batería o espacio crítico");return;}
+  timer.postDelayed(this,2000);
+ }};
  @Override public void onCreate(Bundle state){super.onCreate(state);
   LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);
   status=new TextView(this);status.setText("Esperando cámara");root.addView(status);
@@ -48,9 +53,12 @@ public class RecorderActivity extends Activity implements SurfaceHolder.Callback
    output=MediaStorage.nextVideo(this);recorder.setOutputFile(output.getAbsolutePath());
    recorder.setPreviewDisplay(holder.getSurface());recorder.prepare();recorder.start();
    recording=true;status.setText("Grabando: "+output.getName());WatchAlerts.recordingStarted(this);
+   timer.postDelayed(check,2000);
+   int duration=RecordingPreferences.get(this).getInt("seconds",30);
+   timer.postDelayed(()->{if(recording)stopVideo();},duration*1000L);
   }catch(Exception e){status.setText("No se pudo iniciar: "+e.getMessage());releaseRecorder();openCamera();}
  }
- private void stopVideo(){if(!recording)return;boolean saved=false;
+ private void stopVideo(){if(!recording)return;timer.removeCallbacks(check);boolean saved=false;
   try{recorder.stop();saved=true;}catch(RuntimeException e){status.setText("Grabación incompleta");}
   finally{recording=false;releaseRecorder();}
   if(!saved&&output!=null)output.delete();
